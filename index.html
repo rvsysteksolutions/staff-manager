@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Staff Manager</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            overflow-x: hidden
+        }
+        
+         :root {
+            --p: #E8500A;
+            --pl: #FFF0E8;
+            --t: #1a1a2e;
+            --mu: #6b7280;
+            --bd: #e5e7eb;
+            --gn: #10b981;
+            --rd: #ef4444;
+            --yw: #f59e0b;
+            --bl: #3b82f6;
+            --nh: 60px;
+            --bh: 64px
+        }
+        /* HEADER */
+        
+        .hdr {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            height: var(--nh);
+            background: var(--p);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(232, 80, 10, .3)
+        }
+        
+        .hbk {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 10px 4px 0;
+            line-height: 1
+        }
+        
+        .htl {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            flex: 1
+        }
+        
+        .hbt {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, .5);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 7px 12px;
+            border-radius: 8px
+        }
+        /* BOTTOM NAV */
+        
+        .bnv {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            height: var(--bh);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--bd);
+            z-index: 100;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, .08)
+        }
+        
+        .nit {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--mu);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 8px;
+            position: relative;
+            font-family: inherit
+        }
+        
+        .nit.on {
+            color: var(--p)
+        }
+        
+        .nic {
+            font-size: 22px
+        }
+        
+        .nbdg {
+            position: absolute;
+            top: 6px;
+            right: calc(50% - 18px);
+            background: var(--rd);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px
+        }
+        /* SCREENS */
+        
+        .scr {
+            display: none;
+            padding-top: 76px;
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-bottom: 80px;
+            min-height: 100vh
+        }
+        
+        .scr.fnv {
+            padding-bottom: 24px
+        }
+        
+        .scr.on {
+            display: block
+        }
+        /* CARD */
+        
+        .crd {
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+        /* STAFF/ADMIN CARD */
+        
+        .ucd {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer
+        }
+        
+        .ucd:active {
+            opacity: .8
+        }
+        
+        .avt {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--pl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--p);
+            flex-shrink: 0;
+            overflow: hidden
+        }
+        
+        .avt img,
+        .bav img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+        
+        .avt.adm {
+            background: #ede9fe;
+            color: #7c3aed
+        }
+        
+        .sif {
+            flex: 1;
+            min-width: 0
+        }
+        
+        .snm {
+            font-size: 15px;
+            font-weight: 700
+        }
+        
+        .ssu {
+            font-size: 12px;
+            color: var(--mu);
+            margin-top: 2px
+        }
+        /* BADGES */
+        
+        .bdg {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700
+        }
+        
+        .ba {
+            background: #d1fae5;
+            color: #065f46
+        }
+        
+        .bl2 {
+            background: #fee2e2;
+            color: #991b1b
+        }
+        
+        .bp {
+            background: #fef3c7;
+            color: #92400e
+        }
+        
+        .bbl {
+            background: #dbeafe;
+            color: #1e40af
+        }
+        
+        .bpu {
+            background: #ede9fe;
+            color: #5b21b6
+        }
+        /* SEARCH */
+        
+        .srb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+        
+        .srb input {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            flex: 1;
+            background: transparent;
+            color: var(--t)
+        }
+        /* FORM */
+        
+        .flb {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--mu);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+            display: block
+        }
+        
+        .fin {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--bd);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--t);
+            background: #fff;
+            outline: none;
+            -webkit-appearance: none;
+            font-family: inherit;
+            transition: border-color .2s
+        }
+        
+        .fin:focus {
+            border-color: var(--p)
+        }
+        
+        .frw {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+        
+        .fsc {
+            margin-bottom: 12px
+        }
+        
+        .stl {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--mu);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin: 16px 0 8px
+        }
+        
+        .stl:first-child {
+            margin-top: 0
+        }
+        /* UPLOAD */
+        
+        .uar {
+            border: 2px dashed var(--bd);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden
+        }
+        
+        .uar input[type=file] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            font-size: 0;
+            width: 100%;
+            height: 100%
+        }
+        
+        .uph {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 8px;
+            display: block
+        }
+        
+        .udc {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block
+        }
+        /* BUTTONS */
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            font-family: inherit;
+            transition: transform .1s
+        }
+        
+        .btn:active {
+            transform: scale(.98)
+        }
+        
+        .bp2 {
+            background: var(--p);
+            color: #fff
+        }
+        
+        .bo {
+            background: transparent;
+            color: var(--p);
+            border: 1.5px solid var(--p)
+        }
+        
+        .brd {
+            background: var(--rd);
+            color: #fff
+        }
+        
+        .bgn {
+            background: var(--gn);
+            color: #fff
+        }
+        
+        .bpu2 {
+            background: #7c3aed;
+            color: #fff
+        }
+        
+        .bsm {
+            display: inline-block;
+            width: auto;
+            padding: 7px 14px;
+            font-size: 13px;
+            border-radius: 8px
+        }
+        
+        .bxs {
+            display: inline-block;
+            width: auto;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 6px
+        }
+        /* TABS */
+        
+        .tbs {
+            display: flex;
+            background: #fff;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+        
+        .tbt {
+            flex: 1;
+            padding: 9px 4px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--mu);
+            cursor: pointer;
+            font-family: inherit
+        }
+        
+        .tbt.on {
+            background: var(--p);
+            color: #fff
+        }
+        /* CALENDAR */
+        
+        .clg {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin: 8px 0
+        }
+        
+        .cdn {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--mu);
+            padding: 3px 0
+        }
+        
+        .cdy {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            font-weight: 500
+        }
+        
+        .cdy.td {
+            border-color: var(--p);
+            font-weight: 800
+        }
+        
+        .cdy.lv {
+            background: #fee2e2;
+            color: var(--rd);
+            font-weight: 800
+        }
+        
+        .cdy.lv.pd {
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 800
+        }
+        
+        .cdy.pnd {
+            background: #dbeafe;
+            color: #1e40af;
+            font-weight: 800
+        }
+        
+        .cdy.ex {
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: 800
+        }
+        
+        .cdy:not(.emp):hover {
+            background: var(--pl)
+        }
+        /* STATS */
+        
+        .stp {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 12px
+        }
+        
+        .stc {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+        
+        .stv {
+            font-size: 22px;
+            font-weight: 800
+        }
+        
+        .stl2 {
+            font-size: 11px;
+            color: var(--mu);
+            margin-top: 2px
+        }
+        /* SALARY ROWS */
+        
+        .srw {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bd)
+        }
+        
+        .srw:last-child {
+            border-bottom: none
+        }
+        
+        .srw .sl {
+            font-size: 14px;
+            color: var(--mu)
+        }
+        
+        .srw .sv {
+            font-size: 14px;
+            font-weight: 700
+        }
+        
+        .srw.tot .sl {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--t)
+        }
+        
+        .srw.tot .sv {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--p)
+        }
+        
+        .srw.ded .sv {
+            color: var(--rd)
+        }
+        
+        .srw.grn .sv {
+            color: var(--gn)
+        }
+        /* LIST ITEMS */
+        
+        .lit {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bd)
+        }
+        
+        .lit:last-child {
+            border-bottom: none
+        }
+        /* MONTH NAV */
+        
+        .mnv {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px
+        }
+        
+        .mnv button {
+            background: #fff;
+            border: 1.5px solid var(--bd);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 15px;
+            cursor: pointer
+        }
+        
+        .mlb {
+            font-size: 16px;
+            font-weight: 800
+        }
+        /* PROFILE HERO */
+        
+        .phr {
+            text-align: center;
+            padding: 16px 0 8px
+        }
+        
+        .bav {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: var(--pl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--p);
+            margin: 0 auto 10px;
+            overflow: hidden;
+            border: 3px solid var(--p)
+        }
+        
+        .bav.adm {
+            background: #ede9fe;
+            color: #7c3aed;
+            border-color: #7c3aed
+        }
+        
+        .pnm {
+            font-size: 20px;
+            font-weight: 800
+        }
+        
+        .prl {
+            font-size: 13px;
+            color: var(--mu);
+            margin-top: 3px
+        }
+        /* INFO GRID */
+        
+        .igr {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+        
+        .ilb {
+            font-size: 11px;
+            color: var(--mu);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px
+        }
+        
+        .ivl {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 2px
+        }
+        /* TOAST */
+        
+        .tst {
+            position: fixed;
+            bottom: calc(var(--bh)+12px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity .3s;
+            white-space: nowrap;
+            pointer-events: none
+        }
+        
+        .tst.on {
+            opacity: 1
+        }
+        /* MODAL */
+        
+        .ovl {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s
+        }
+        
+        .ovl.on {
+            opacity: 1;
+            pointer-events: all
+        }
+        
+        .sht {
+            background: #fff;
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform .3s
+        }
+        
+        .ovl.on .sht {
+            transform: translateY(0)
+        }
+        
+        .hdl {
+            width: 36px;
+            height: 4px;
+            background: var(--bd);
+            border-radius: 2px;
+            margin: 0 auto 16px
+        }
+        /* EMPTY */
+        
+        .ept {
+            text-align: center;
+            padding: 50px 20px
+        }
+        
+        .eic {
+            font-size: 52px;
+            margin-bottom: 12px
+        }
+        
+        .etl {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px
+        }
+        
+        .esu {
+            font-size: 13px;
+            color: var(--mu)
+        }
+        /* DOC THUMB */
+        
+        .dct {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1.5px solid var(--bd);
+            cursor: pointer
+        }
+        /* PAID BANNER */
+        
+        .pdb {
+            background: #d1fae5;
+            border: 1.5px solid #a7f3d0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px
+        }
+        
+        .pdb .pdi {
+            font-size: 22px
+        }
+        
+        .pdb .pdt {
+            font-size: 13px;
+            font-weight: 700;
+            color: #065f46
+        }
+        /* REQUEST CARDS */
+        
+        .rqc {
+            background: #fff;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+        }
+        /* LOGIN */
+        
+        .lgn {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            background: linear-gradient(160deg, #fff5f0 0%, #fff 60%)
+        }
+        
+        .lgico {
+            font-size: 60px;
+            margin-bottom: 8px
+        }
+        
+        .lgtl {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--p);
+            margin-bottom: 4px
+        }
+        
+        .lgsu {
+            font-size: 14px;
+            color: var(--mu);
+            margin-bottom: 32px
+        }
+        
+        .rsel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 24px
+        }
+        
+        .rbt {
+            border: 2px solid var(--bd);
+            border-radius: 16px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff;
+            font-family: inherit;
+            transition: all .2s
+        }
+        
+        .rbt.on {
+            border-color: var(--p);
+            background: var(--pl)
+        }
+        
+        .rbt .ric {
+            font-size: 32px;
+            margin-bottom: 6px
+        }
+        
+        .rbt .rnm {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--t)
+        }
+        
+        .rbt.on .rnm {
+            color: var(--p)
+        }
+        
+        .pin-wrap {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 16px 0
+        }
+        
+        .pin-dot {
+            width: 48px;
+            height: 56px;
+            border: 2px solid var(--bd);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            background: #fff;
+            transition: border-color .2s
+        }
+        
+        .pin-dot.fl {
+            border-color: var(--p);
+            background: var(--pl)
+        }
+        
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto
+        }
+        
+        .npb {
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            background: #fff;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--t);
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+            font-family: inherit
+        }
+        
+        .npb:active {
+            background: var(--pl)
+        }
+        
+        .npb.emp {
+            background: transparent;
+            box-shadow: none;
+            cursor: default
+        }
+        
+        .usel {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--bd);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--t);
+            background: #fff;
+            outline: none;
+            margin-bottom: 12px;
+            font-family: inherit;
+            -webkit-appearance: none
+        }
+        
+        .usel:focus {
+            border-color: var(--p)
+        }
+        
+        .pin-lbl {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--mu);
+            text-align: center;
+            margin-bottom: 4px
+        }
+        
+        .pin-err {
+            font-size: 13px;
+            color: var(--rd);
+            text-align: center;
+            min-height: 20px;
+            margin: 4px 0
+        }
+        /* STAFF HOME */
+        
+        .shm {
+            background: linear-gradient(135deg, var(--p), #c23d00);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            color: #fff
+        }
+        /* ADMIN HOME */
+        
+        .ahm {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            color: #fff
+        }
+        /* SECTION TITLE with line */
+        
+        .sec-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px
+        }
+        
+        .sec-hd-t {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--mu);
+            text-transform: uppercase;
+            letter-spacing: .5px
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Firebase loading overlay -->
+    <div id="fbLoad" style="position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+        <div style="width:48px;height:48px;border:4px solid #E8500A;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <div style="font-size:14px;color:#6b7280" id="fbLoadMsg">Connecting to database…</div>
+    </div>
+    <style>
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+
+    <div class="tst" id="toast"></div>
+
+    <!-- ═══ LOGIN ═══ -->
+    <div id="sLogin" style="display:flex;flex-direction:column">
+        <div class="lgn">
+            <div class="lgico">🍽️</div>
+            <div class="lgtl">Staff Manager</div>
+            <div class="lgsu">Restaurant Management App</div>
+            <div style="width:100%;font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;text-align:center">Who are you?</div>
+            <div class="rsel">
+                <div class="rbt on" id="rAdmin" onclick="selRole('admin')">
+                    <div class="ric">👨‍💼</div>
+                    <div class="rnm">Admin</div>
+                </div>
+                <div class="rbt" id="rStaff" onclick="selRole('staff')">
+                    <div class="ric">👷</div>
+                    <div class="rnm">Staff</div>
+                </div>
+            </div>
+            <div style="width:100%;margin-bottom:4px">
+                <label class="flb" id="selLabel">Select Admin</label>
+                <select class="usel" id="userSel" onchange="onUserSel()">
+        <option value="">-- Choose --</option>
+      </select>
+            </div>
+            <div style="width:100%;text-align:center">
+                <div class="pin-lbl" id="pinLbl">Enter your PIN</div>
+                <div class="pin-wrap" id="pinDots">
+                    <div class="pin-dot" id="pd0"></div>
+                    <div class="pin-dot" id="pd1"></div>
+                    <div class="pin-dot" id="pd2"></div>
+                    <div class="pin-dot" id="pd3"></div>
+                </div>
+                <div class="pin-err" id="pinErr"></div>
+            </div>
+            <div class="numpad">
+                <button class="npb" onclick="pinKey('1')">1</button><button class="npb" onclick="pinKey('2')">2</button><button class="npb" onclick="pinKey('3')">3</button>
+                <button class="npb" onclick="pinKey('4')">4</button><button class="npb" onclick="pinKey('5')">5</button><button class="npb" onclick="pinKey('6')">6</button>
+                <button class="npb" onclick="pinKey('7')">7</button><button class="npb" onclick="pinKey('8')">8</button><button class="npb" onclick="pinKey('9')">9</button>
+                <button class="npb emp"></button><button class="npb" onclick="pinKey('0')">0</button><button class="npb" onclick="pinDel()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ ADMIN BOTTOM NAV ═══ -->
+    <nav class="bnv" id="bnv" style="display:none">
+        <button class="nit on" id="nSt" onclick="navTo('list')"><span class="nic">👥</span>Staff</button>
+        <button class="nit" id="nRq" onclick="navTo('reqs')"><span class="nic">🔔</span><span id="rqBdg" class="nbdg">0</span>Requests</button>
+        <button class="nit" id="nSal" onclick="navTo('salary')"><span class="nic">💰</span>Salary</button>
+        <button class="nit" id="nSet" onclick="navTo('settings')"><span class="nic">⚙️</span>Settings</button>
+    </nav>
+
+    <!-- ═══ STAFF BOTTOM NAV ═══ -->
+    <nav class="bnv" id="bnvSt" style="display:none">
+        <button class="nit on" id="nsH" onclick="navSt('home')"><span class="nic">🏠</span>Home</button>
+        <button class="nit" id="nsL" onclick="navSt('leave')"><span class="nic">📅</span>Leaves</button>
+        <button class="nit" id="nsS" onclick="navSt('salary')"><span class="nic">💰</span>Salary</button>
+    </nav>
+
+    <!-- ═══ ADMIN SCREENS ═══ -->
+
+    <!-- Staff List -->
+    <div class="scr" id="sList">
+        <div class="hdr">
+            <div class="htl">🍽️ Staff Manager</div><button class="hbt" onclick="showStaffForm(null)">+ Add</button></div>
+        <div class="srb"><span>🔍</span><input type="text" placeholder="Search staff..." id="srch" oninput="renderList()"></div>
+        <div id="listCont"></div>
+    </div>
+
+    <!-- Requests -->
+    <div class="scr" id="sReqs">
+        <div class="hdr">
+            <div class="htl">🔔 Requests</div>
+        </div>
+        <div class="tbs">
+            <button class="tbt on" id="rtL" onclick="setReqTab('leave')">Leaves</button>
+            <button class="tbt" id="rtA" onclick="setReqTab('adv')">Advances</button>
+            <button class="tbt" id="rtP" onclick="setReqTab('pts')">⭐ Points</button>
+        </div>
+        <div id="reqCont"></div>
+    </div>
+
+    <!-- Salary Overview -->
+    <div class="scr" id="sSalary">
+        <div class="hdr">
+            <div class="htl">💰 Salary Overview</div>
+        </div>
+        <div class="mnv"><button onclick="chgOvM(-1)">‹</button><span class="mlb" id="ovML"></span><button onclick="chgOvM(1)">›</button></div>
+        <div id="ovList"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="scr" id="sSettings">
+        <div class="hdr">
+            <div class="htl">⚙️ Settings</div><button class="hbt" onclick="doLogout()">Logout</button></div>
+        <div id="settingsCont"></div>
+    </div>
+
+    <!-- Staff Form -->
+    <div class="scr fnv" id="sStaffForm">
+        <div class="hdr">
+            <button class="hbk" onclick="goBack()">←</button>
+            <div class="htl" id="sfTl">Add Staff</div>
+            <button class="hbt" onclick="saveStaffMember()">Save</button>
+        </div>
+        <p class="stl">Profile Photo</p>
+        <div class="crd" style="padding:12px">
+            <div class="uar"><input type="file" id="sfPhInp" accept="image/*" onchange="handleImg(event,'sfPh')"><img id="sfPhPrev" class="uph" style="display:none">
+                <div id="sfPhPh">
+                    <div style="font-size:32px">📷</div>
+                    <div style="font-size:13px;color:var(--mu);margin-top:6px">Tap to upload photo</div>
+                </div>
+            </div>
+        </div>
+        <p class="stl">Personal Details</p>
+        <div class="crd">
+            <div class="fsc"><label class="flb">Full Name *</label><input class="fin" type="text" id="sfNm" placeholder="e.g. Ramesh Kumar"></div>
+            <div class="fsc"><label class="flb">Phone</label><input class="fin" type="tel" id="sfPh" placeholder="9876543210"></div>
+            <div class="fsc"><label class="flb">Address</label><textarea class="fin" id="sfAd" rows="2" placeholder="Home address" style="resize:none"></textarea></div>
+            <div class="fsc"><label class="flb">Role / Designation</label><input class="fin" type="text" id="sfRl" placeholder="e.g. Waiter, Chef, Cleaner"></div>
+        </div>
+        <p class="stl">Employment</p>
+        <div class="crd">
+            <div class="fsc"><label class="flb">Monthly Salary (₹) *</label><input class="fin" type="number" id="sfSal" placeholder="e.g. 12000"></div>
+            <div class="frw">
+                <div class="fsc"><label class="flb">Joining Date *</label><input class="fin" type="date" id="sfJn"></div>
+                <div class="fsc"><label class="flb">End Date</label><input class="fin" type="date" id="sfEn"></div>
+            </div>
+            <div class="fsc"><label class="flb">Paid Leaves / Month</label><input class="fin" type="number" id="sfLv" value="2" min="0" max="31"></div>
+        </div>
+        <p class="stl">Login PIN</p>
+        <div class="crd">
+            <div class="fsc"><label class="flb">Staff PIN * (4 digits)</label><input class="fin" type="number" id="sfPin" placeholder="Set a 4-digit login PIN" maxlength="4"></div>
+            <div style="font-size:12px;color:var(--mu)">Staff uses this PIN to log in. Admin can reset it anytime.</div>
+        </div>
+        <p class="stl">Aadhaar Card</p>
+        <div class="crd" style="padding:12px">
+            <div class="uar"><input type="file" id="sfAdInp" accept="image/*" onchange="handleImg(event,'sfAd2')"><img id="sfAdPrev" class="udc" style="display:none">
+                <div id="sfAdPh">
+                    <div style="font-size:32px">🪪</div>
+                    <div style="font-size:13px;color:var(--mu);margin-top:6px">Tap to upload Aadhaar</div>
+                </div>
+            </div>
+            <div class="fsc" style="margin-top:10px"><label class="flb">Aadhaar Number</label><input class="fin" type="text" id="sfANo" placeholder="xxxx xxxx xxxx" maxlength="14"></div>
+        </div>
+        <div id="sfDelBtn" style="display:none;margin-bottom:8px"><button class="btn brd" onclick="confirmDelStaff()">🗑️ Remove Staff</button></div>
+        <div style="height:20px"></div>
+    </div>
+
+    <!-- Staff Detail -->
+    <div class="scr fnv" id="sStaffDetail">
+        <div class="hdr">
+            <button class="hbk" onclick="goBack()">←</button>
+            <div class="htl" id="sdTl">Staff</div>
+            <button class="hbt" onclick="editCurrStaff()">Edit</button>
+        </div>
+        <div class="phr">
+            <div class="bav" id="sdAv"></div>
+            <div class="pnm" id="sdNm"></div>
+            <div class="prl" id="sdRl"></div>
+            <div style="margin-top:8px" id="sdBdg"></div>
+        </div>
+        <div class="tbs">
+            <button class="tbt on" id="tpro" onclick="setStaffTab('pro')">Profile</button>
+            <button class="tbt" id="tlvs" onclick="setStaffTab('lvs')">Leaves</button>
+            <button class="tbt" id="tsal" onclick="setStaffTab('sal')">Salary</button>
+        </div>
+        <div id="sdt-pro">
+            <div class="crd">
+                <div class="igr" id="sdInfo"></div>
+            </div>
+            <div class="crd">
+                <button class="btn bo" onclick="showResetPinModal('staff', S.selStaffId)">🔑 Reset Staff PIN</button>
+            </div>
+            <div id="sdAad"></div>
+        </div>
+        <div id="sdt-lvs" style="display:none">
+            <div class="mnv"><button onclick="chgSdM(-1)">‹</button><span class="mlb" id="sdLvML"></span><button onclick="chgSdM(1)">›</button></div>
+            <div class="stp">
+                <div class="stc">
+                    <div class="stv" id="sdLvT" style="color:var(--rd)">0</div>
+                    <div class="stl2">Taken</div>
+                </div>
+                <div class="stc">
+                    <div class="stv" id="sdLvP" style="color:var(--yw)">0</div>
+                    <div class="stl2">Paid</div>
+                </div>
+                <div class="stc">
+                    <div class="stv" id="sdLvU" style="color:var(--rd)">0</div>
+                    <div class="stl2">Unpaid</div>
+                </div>
+            </div>
+            <div class="crd">
+                <div style="font-size:12px;font-weight:700;color:var(--mu);margin-bottom:8px">TAP DATE TO MARK / REMOVE LEAVE</div>
+                <div class="clg" id="sdCal"></div>
+            </div>
+            <div class="crd">
+                <div style="font-weight:700;margin-bottom:10px">Leave Records</div>
+                <div id="sdLvList"></div>
+            </div>
+        </div>
+        <div id="sdt-sal" style="display:none">
+            <div class="mnv"><button onclick="chgSdM(-1)">‹</button><span class="mlb" id="sdSalML"></span><button onclick="chgSdM(1)">›</button></div>
+            <div id="sdPaidBnr"></div>
+            <div class="crd">
+                <div style="font-weight:700;margin-bottom:12px">Salary Breakdown</div>
+                <div id="sdSalBrk"></div>
+            </div>
+            <div class="crd">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                    <div style="font-weight:700">Advances</div><button class="btn bp2 bsm" onclick="showAdvMod()">+ Add</button></div>
+                <div id="sdAdvList"></div>
+            </div>
+            <button class="btn bgn" id="mrkPaidBtn" onclick="markPaid()">✅ Mark Salary as Paid</button>
+        </div>
+    </div>
+
+    <!-- Admin Form (only main admin) -->
+    <div class="scr fnv" id="sAdminForm">
+        <div class="hdr">
+            <button class="hbk" onclick="goBack()">←</button>
+            <div class="htl" id="afTl">Add Admin</div>
+            <button class="hbt" onclick="saveAdminMember()">Save</button>
+        </div>
+        <p class="stl">Profile Photo</p>
+        <div class="crd" style="padding:12px">
+            <div class="uar"><input type="file" id="afPhInp" accept="image/*" onchange="handleImg(event,'afPh')"><img id="afPhPrev" class="uph" style="display:none">
+                <div id="afPhPh">
+                    <div style="font-size:32px">📷</div>
+                    <div style="font-size:13px;color:var(--mu);margin-top:6px">Tap to upload photo</div>
+                </div>
+            </div>
+        </div>
+        <p class="stl">Personal Details</p>
+        <div class="crd">
+            <div class="fsc"><label class="flb">Full Name *</label><input class="fin" type="text" id="afNm" placeholder="e.g. Suresh Patel"></div>
+            <div class="fsc"><label class="flb">Phone</label><input class="fin" type="tel" id="afPh" placeholder="9876543210"></div>
+            <div class="fsc"><label class="flb">Role / Title</label><input class="fin" type="text" id="afRl" placeholder="e.g. Manager, Supervisor"></div>
+        </div>
+        <p class="stl">Login PIN</p>
+        <div class="crd">
+            <div class="fsc"><label class="flb">Admin PIN * (4 digits)</label><input class="fin" type="number" id="afPin" placeholder="Set a 4-digit PIN" maxlength="4"></div>
+        </div>
+        <div id="afDelBtn" style="display:none;margin-bottom:8px"><button class="btn brd" onclick="confirmDelAdmin()">🗑️ Remove Admin</button></div>
+        <div style="height:20px"></div>
+    </div>
+
+    <!-- Admin Detail -->
+    <div class="scr fnv" id="sAdminDetail">
+        <div class="hdr">
+            <button class="hbk" onclick="goBack()">←</button>
+            <div class="htl" id="adTl">Admin Profile</div>
+            <div id="adEditBtn"></div>
+        </div>
+        <div class="phr">
+            <div class="bav adm" id="adAv"></div>
+            <div class="pnm" id="adNm"></div>
+            <div class="prl" id="adRl"></div>
+            <div style="margin-top:8px" id="adBdg"></div>
+        </div>
+        <div class="crd">
+            <div class="igr" id="adInfo"></div>
+        </div>
+        <div class="crd" id="adResetPin"></div>
+    </div>
+
+    <!-- ═══ STAFF SCREENS ═══ -->
+    <div class="scr" id="sStHome">
+        <div class="hdr">
+            <div class="htl" id="stHTl">My Dashboard</div><button class="hbt" onclick="doLogout()">Logout</button></div>
+        <div id="stHomeCont"></div>
+    </div>
+    <div class="scr" id="sStLeave">
+        <div class="hdr">
+            <div class="htl">📅 My Leaves</div>
+        </div>
+        <div class="mnv"><button onclick="chgStM(-1)">‹</button><span class="mlb" id="stLvML"></span><button onclick="chgStM(1)">›</button></div>
+        <div class="stp">
+            <div class="stc">
+                <div class="stv" id="stLvT" style="color:var(--rd)">0</div>
+                <div class="stl2">Taken</div>
+            </div>
+            <div class="stc">
+                <div class="stv" id="stLvP" style="color:var(--yw)">0</div>
+                <div class="stl2">Paid</div>
+            </div>
+            <div class="stc">
+                <div class="stv" id="stLvB" style="color:var(--gn)">0</div>
+                <div class="stl2">Remaining</div>
+            </div>
+        </div>
+        <div class="crd">
+            <div class="clg" id="stCal"></div>
+        </div>
+        <button class="btn bp2" style="margin-bottom:12px" onclick="showLvReqMod()">+ Request Leave</button>
+        <div class="crd">
+            <div style="font-weight:700;margin-bottom:10px">My Leave Requests</div>
+            <div id="stLvList"></div>
+        </div>
+    </div>
+    <div class="scr" id="sStSalary">
+        <div class="hdr">
+            <div class="htl">💰 My Salary</div>
+        </div>
+        <div class="mnv"><button onclick="chgStM(-1)">‹</button><span class="mlb" id="stSalML"></span><button onclick="chgStM(1)">›</button></div>
+        <div id="stSalCont"></div>
+        <button class="btn bp2" style="margin-bottom:12px" onclick="showAdvReqMod()">+ Request Advance</button>
+        <div class="crd">
+            <div style="font-weight:700;margin-bottom:10px">My Advance Requests</div>
+            <div id="stAdvList"></div>
+        </div>
+        <div class="crd" id="stPointsCrd">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div>
+                    <div style="font-weight:800;font-size:16px">⭐ My Points</div>
+                    <div style="font-size:12px;color:var(--mu)">100 points = ₹100 bonus</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:28px;font-weight:900;color:var(--yw)" id="stPtsBal">0</div>
+                    <div style="font-size:11px;color:var(--mu)">balance</div>
+                </div>
+            </div>
+            <button class="btn bp2" style="margin-bottom:12px" onclick="showPtReqMod()">⭐ Request Points</button>
+            <div style="font-weight:700;margin-bottom:8px;font-size:13px">Points History</div>
+            <div id="stPtsHistory"></div>
+        </div>
+    </div>
+
+    <!-- ═══ MODALS ═══ -->
+    <!-- Add Advance (admin) -->
+    <div class="ovl" id="mAdv">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:16px">Add Advance</div>
+            <div class="fsc"><label class="flb">Date</label><input class="fin" type="date" id="advDt"></div>
+            <div class="fsc"><label class="flb">Amount (₹)</label><input class="fin" type="number" id="advAm" placeholder="e.g. 2000"></div>
+            <div class="fsc"><label class="flb">Note</label><input class="fin" type="text" id="advNo" placeholder="Reason..."></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="saveAdv()">Save</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mAdv')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- View Aadhaar -->
+    <div class="ovl" id="mAad">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:12px">Aadhaar Card</div>
+            <img id="aadImg" style="width:100%;border-radius:12px;object-fit:contain;max-height:300px">
+            <button class="btn bo" style="margin-top:16px" onclick="hideM('mAad')">Close</button>
+        </div>
+    </div>
+
+    <!-- Leave Request (staff) -->
+    <div class="ovl" id="mLvReq">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:16px">Request Leave</div>
+            <div class="fsc"><label class="flb">Date *</label><input class="fin" type="date" id="lrDt"></div>
+            <div class="fsc"><label class="flb">Reason (optional)</label><input class="fin" type="text" id="lrRs" placeholder="e.g. Family function"></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="submitLvReq()">Submit</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mLvReq')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Advance Request (staff) -->
+    <div class="ovl" id="mAdvReq">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:16px">Request Advance</div>
+            <div class="fsc"><label class="flb">Amount (₹) *</label><input class="fin" type="number" id="arAm" placeholder="e.g. 2000"></div>
+            <div class="fsc"><label class="flb">Reason (optional)</label><input class="fin" type="text" id="arRs" placeholder="e.g. Medical emergency"></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="submitAdvReq()">Submit</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mAdvReq')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Bonus modal (admin) -->
+    <div class="ovl" id="mBonus">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:4px">🎁 Set Bonus</div>
+            <div style="font-size:13px;color:var(--mu);margin-bottom:16px" id="soLbl"></div>
+            <input type="hidden" id="bnSid"><input type="hidden" id="bnY"><input type="hidden" id="bnM">
+            <div class="fsc"><label class="flb">Bonus Amount (₹)</label><input class="fin" type="number" id="bnAm" placeholder="e.g. 500"></div>
+            <div class="fsc"><label class="flb">Reason (optional)</label><input class="fin" type="text" id="bnNt" placeholder="e.g. Best performance this month"></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="saveBonus()">Save Bonus</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mBonus')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Salary Override modal (admin) -->
+    <div class="ovl" id="mSalOv">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:4px">💵 Set Monthly Salary</div>
+            <div style="font-size:13px;color:var(--mu);margin-bottom:16px" id="soLbl2"></div>
+            <input type="hidden" id="soSid"><input type="hidden" id="soY"><input type="hidden" id="soM">
+            <div class="fsc"><label class="flb">Salary for this month (₹)</label><input class="fin" type="number" id="soAm" placeholder="Override salary for selected month"></div>
+            <div style="font-size:12px;color:var(--mu);margin-bottom:12px">Applies only to this month. Future months use default unless overridden.</div>
+            <button class="btn bp2" style="margin-top:8px" onclick="saveSalOv()">Set Salary</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mSalOv')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Edit Advance modal (admin) -->
+    <div class="ovl" id="mEditAdv">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:16px">✏️ Edit Advance</div>
+            <input type="hidden" id="eaId">
+            <div class="fsc"><label class="flb">Date</label><input class="fin" type="date" id="eaDt"></div>
+            <div class="fsc"><label class="flb">Amount (₹)</label><input class="fin" type="number" id="eaAm" placeholder="e.g. 2000"></div>
+            <div class="fsc"><label class="flb">Note</label><input class="fin" type="text" id="eaNt" placeholder="Reason..."></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="doEditAdv()">Update</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mEditAdv')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Request Points modal (staff) -->
+    <div class="ovl" id="mPtReq">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:4px">⭐ Request Points</div>
+            <div style="font-size:13px;color:var(--mu);margin-bottom:16px">Points in multiples of 10. 100 points = ₹100 bonus.</div>
+            <div class="fsc"><label class="flb">Points (multiples of 10)</label><input class="fin" type="number" id="prPt" placeholder="e.g. 10, 20, 30..." step="10" min="10"></div>
+            <div class="fsc"><label class="flb">Reason *</label><input class="fin" type="text" id="prRs" placeholder="e.g. Completed extra work"></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="submitPtReq()">Submit Request</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mPtReq')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Reset PIN (admin resets anyone's PIN) -->
+    <div class="ovl" id="mResetPin">
+        <div class="sht">
+            <div class="hdl"></div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:8px">🔑 Reset PIN</div>
+            <div style="font-size:13px;color:var(--mu);margin-bottom:16px" id="resetPinFor">Reset PIN for this member</div>
+            <div class="fsc"><label class="flb">New PIN (4 digits)</label><input class="fin" type="number" id="newPinVal" placeholder="Enter new 4-digit PIN" maxlength="4"></div>
+            <button class="btn bp2" style="margin-top:8px" onclick="doResetPin()">Set New PIN</button>
+            <button class="btn bo" style="margin-top:8px" onclick="hideM('mResetPin')">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // ── DB ──────────────────────────────────────
+        let _db = null;
+
+        function openDB() {
+            return new Promise((ok, fail) => {
+                if (_db) {
+                    ok(_db);
+                    return;
+                }
+                const r = indexedDB.open('StaffMgr2', 1);
+                r.onupgradeneeded = e => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains('imgs')) d.createObjectStore('imgs');
+                };
+                r.onsuccess = e => {
+                    _db = e.target.result;
+                    ok(_db);
+                };
+                r.onerror = () => fail(r.error);
+            });
+        }
+        async function dbSet(k, v) {
+            const d = await openDB();
+            return new Promise((ok, f) => {
+                const t = d.transaction('imgs', 'readwrite');
+                t.objectStore('imgs').put(v, k);
+                t.oncomplete = ok;
+                t.onerror = f;
+            });
+        }
+        async function dbGet(k) {
+            const d = await openDB();
+            return new Promise(ok => {
+                const t = d.transaction('imgs', 'readonly');
+                const r = t.objectStore('imgs').get(k);
+                r.onsuccess = () => ok(r.result || null);
+                r.onerror = () => ok(null);
+            });
+        }
+        async function dbDel(k) {
+            const d = await openDB();
+            return new Promise(ok => {
+                const t = d.transaction('imgs', 'readwrite');
+                t.objectStore('imgs').delete(k);
+                t.oncomplete = ok;
+                t.onerror = ok;
+            });
+        }
+
+        // ── FIREBASE CONFIG ──────────────────────────
+        // 🔧 REPLACE these values with your own Firebase project config:
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEZUKrTtBXDO1gV--5GFhXGTNBP9h70YQ",
+            authDomain: "staff-manager-e0e60.firebaseapp.com",
+            projectId: "staff-manager-e0e60",
+            storageBucket: "staff-manager-e0e60.firebasestorage.app",
+            messagingSenderId: "1020926109069",
+            appId: "1:1020926109069:web:5c6aab898830e41fa249c4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const firestoreDB = firebase.firestore();
+        const FS_COLLECTION = 'data';
+        const SYNC_KEYS = ['admins', 'staff', 'leaves', 'adv', 'lvreqs', 'advreqs', 'paid', 'extradays', 'bonuses', 'salov', 'ptreqs', 'ptledger'];
+
+        // Write a key to Firestore (fire-and-forget)
+        function fsSet(k, v) {
+            firestoreDB.collection(FS_COLLECTION).doc(k).set({
+                value: v
+            }).catch(e => console.warn('Firestore write failed:', e));
+        }
+
+        // Load all synced keys from Firestore into localStorage, then boot the app
+        async function syncFromFirestore() {
+            const el = document.getElementById('fbLoadMsg');
+            try {
+                await Promise.all(SYNC_KEYS.map(async k => {
+                    const doc = await firestoreDB.collection(FS_COLLECTION).doc(k).get();
+                    if (doc.exists) {
+                        localStorage.setItem(k, JSON.stringify(doc.data().value));
+                    }
+                }));
+            } catch (e) {
+                console.warn('Firestore load failed, using local data:', e);
+                el.textContent = 'Offline mode — using local data';
+            }
+            document.getElementById('fbLoad').style.display = 'none';
+            initApp();
+        }
+
+        // ── STORAGE ──────────────────────────────────
+        // ls.set also pushes to Firestore for all sync keys
+        const ls = {
+            get: (k, d) => {
+                try {
+                    const v = localStorage.getItem(k);
+                    return v != null ? JSON.parse(v) : d;
+                } catch {
+                    return d;
+                }
+            },
+            set: (k, v) => {
+                localStorage.setItem(k, JSON.stringify(v));
+                if (SYNC_KEYS.includes(k)) fsSet(k, v);
+            }
+        };
+        const gAdmins = () => ls.get('admins', []);
+        const sAdmins = v => ls.set('admins', v);
+        const gStaff = () => ls.get('staff', []);
+        const sStaff = v => ls.set('staff', v);
+        const gLeaves = () => ls.get('leaves', []);
+        const sLeaves = v => ls.set('leaves', v);
+        const gAdv = () => ls.get('adv', []);
+        const sAdv2 = v => ls.set('adv', v);
+        const gLvReqs = () => ls.get('lvreqs', []);
+        const sLvReqs = v => ls.set('lvreqs', v);
+        const gAdvReqs = () => ls.get('advreqs', []);
+        const sAdvReqs = v => ls.set('advreqs', v);
+        const gPaid = () => ls.get('paid', []);
+        const sPaid = v => ls.set('paid', v);
+        const gExtra = () => ls.get('extradays', []);
+        const sExtra = v => ls.set('extradays', v);
+        const gBonuses = () => ls.get('bonuses', []);
+        const sBonuses = v => ls.set('bonuses', v);
+        const gSalOv = () => ls.get('salov', []);
+        const sSalOv = v => ls.set('salov', v);
+        const gPtReqs = () => ls.get('ptreqs', []);
+        const sPtReqs = v => ls.set('ptreqs', v);
+        const gPtLedger = () => ls.get('ptledger', []);
+        const sPtLedger = v => ls.set('ptledger', v);
+
+        // ── INIT ADMINS ───────────────────────────────
+        function initAdmins() {
+            if (!gAdmins().length) {
+                sAdmins([{
+                    id: 'main-' + uid(),
+                    name: 'Main Admin',
+                    phone: '',
+                    role: 'Owner',
+                    pin: '1234',
+                    isMain: true,
+                    joinDate: today()
+                }]);
+            }
+        }
+
+        // ── STATE ─────────────────────────────────────
+        const S = {
+            role: null,
+            userId: null,
+            isMain: false,
+            view: 'list',
+            prev: 'list',
+            selStaffId: null,
+            selAdminId: null,
+            staffTab: 'pro',
+            dMon: null,
+            ovMon: null,
+            stMon: null,
+            sfEditId: null,
+            afEditId: null,
+            tmpImgs: {},
+            resetPinType: null,
+            resetPinId: null
+        };
+
+        // ── UTILS ─────────────────────────────────────
+        const today = () => {
+            const d = new Date();
+            return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+        };
+        const nowMon = () => {
+            const d = new Date();
+            return {
+                y: d.getFullYear(),
+                m: d.getMonth() + 1
+            };
+        };
+
+        function p2(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function uid() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
+
+        function fmtD(d) {
+            if (!d) return '—';
+            const [y, m, day] = d.split('-');
+            return `${day}/${m}/${y}`;
+        }
+
+        function fmtM(n) {
+            return '₹' + Number(Math.round(n)).toLocaleString('en-IN');
+        }
+
+        function monName(m, y) {
+            return new Date(y, m - 1, 1).toLocaleString('default', {
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function dim(y, m) {
+            return new Date(y, m, 0).getDate();
+        }
+
+        function inits(n) {
+            return (n || '?').split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        }
+
+        function monPfx(y, m) {
+            return `${y}-${p2(m)}`;
+        }
+
+        function isPaid(sid, y, m) {
+            return gPaid().some(p => p.sid === sid && p.y === y && p.m === m);
+        }
+
+        function getEffSalary(sid, y, m) {
+            const ov = gSalOv().find(o => o.sid === sid && o.y === y && o.m === m);
+            return ov ? ov.salary : (gStaff().find(s => s.id === sid) ? .salary || 0);
+        }
+
+        function getPtBal(sid) {
+            return gPtLedger().filter(l => l.sid === sid).reduce((s, l) => s + l.delta, 0);
+        }
+
+        function getBonus(sid, y, m) {
+            return gBonuses().find(b => b.sid === sid && b.y === y && b.m === m) || null;
+        }
+        // Auto-redeem points when balance hits 100+; adds to current month bonus; returns ₹ redeemed
+        function autoRedeemPts(sid) {
+            const {
+                y,
+                m
+            } = nowMon();
+            let bal = getPtBal(sid);
+            let redeemed = 0;
+            const ledger = gPtLedger();
+            while (bal >= 100) {
+                bal -= 100;
+                redeemed += 100;
+                ledger.push({
+                    id: uid(),
+                    sid,
+                    date: today(),
+                    delta: -100,
+                    type: 'redeemed',
+                    note: '100 pts → ₹100 bonus'
+                });
+            }
+            sPtLedger(ledger);
+            if (redeemed > 0) {
+                const bonuses = gBonuses();
+                const ex = bonuses.find(b => b.sid === sid && b.y === y && b.m === m);
+                if (ex) {
+                    ex.amount = (parseFloat(ex.amount) || 0) + redeemed;
+                    ex.note = (ex.note ? ex.note + ' + ' : '') + `₹${redeemed} pts bonus`;
+                } else {
+                    bonuses.push({
+                        id: uid(),
+                        sid,
+                        y,
+                        m,
+                        amount: redeemed,
+                        note: `Points bonus ₹${redeemed}`
+                    });
+                }
+                sBonuses(bonuses);
+            }
+            return redeemed;
+        }
+
+        // ── TOAST & MODAL ──────────────────────────────
+        function toast(msg) {
+            const e = document.getElementById('toast');
+            e.textContent = msg;
+            e.classList.add('on');
+            setTimeout(() => e.classList.remove('on'), 2400);
+        }
+
+        function showM(id) {
+            document.getElementById(id).classList.add('on');
+        }
+
+        function hideM(id) {
+            document.getElementById(id).classList.remove('on');
+        }
+
+        // ── LOGIN ─────────────────────────────────────
+        let pinBuf = '',
+            loginRole = 'admin',
+            loginUserId = null;
+
+        function selRole(r) {
+            loginRole = r;
+            pinBuf = '';
+            renderPinDots();
+            document.getElementById('pinErr').textContent = '';
+            document.getElementById('rAdmin').classList.toggle('on', r === 'admin');
+            document.getElementById('rStaff').classList.toggle('on', r === 'staff');
+            const sel = document.getElementById('userSel');
+            document.getElementById('selLabel').textContent = r === 'admin' ? 'Select Admin' : 'Select Your Name';
+            if (r === 'admin') {
+                const admins = gAdmins();
+                sel.innerHTML = '<option value="">-- Choose admin --</option>' + admins.map(a => `<option value="${a.id}">${a.name}${a.isMain?' (Main)':''}</option>`).join('');
+            } else {
+                const staff = gStaff();
+                sel.innerHTML = '<option value="">-- Choose name --</option>' + staff.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            }
+            loginUserId = null;
+            document.getElementById('pinLbl').textContent = 'Select your name first';
+        }
+
+        function onUserSel() {
+            loginUserId = document.getElementById('userSel').value || null;
+            pinBuf = '';
+            renderPinDots();
+            document.getElementById('pinErr').textContent = '';
+            document.getElementById('pinLbl').textContent = loginUserId ? 'Enter your PIN' : 'Select your name first';
+        }
+
+        function pinKey(k) {
+            if (!loginUserId) {
+                toast('Please select your name first');
+                return;
+            }
+            if (pinBuf.length >= 4) return;
+            pinBuf += k;
+            renderPinDots();
+            if (pinBuf.length === 4) setTimeout(tryLogin, 150);
+        }
+
+        function pinDel() {
+            if (pinBuf.length > 0) {
+                pinBuf = pinBuf.slice(0, -1);
+                renderPinDots();
+                document.getElementById('pinErr').textContent = '';
+            }
+        }
+
+        function renderPinDots() {
+            for (let i = 0; i < 4; i++) {
+                const el = document.getElementById('pd' + i);
+                el.textContent = i < pinBuf.length ? '●' : '';
+                el.classList.toggle('fl', i < pinBuf.length);
+            }
+        }
+
+        function tryLogin() {
+            const err = document.getElementById('pinErr');
+            if (!loginUserId) {
+                err.textContent = 'Please select your name';
+                pinBuf = '';
+                renderPinDots();
+                return;
+            }
+            if (loginRole === 'admin') {
+                const admin = gAdmins().find(a => a.id === loginUserId);
+                if (!admin) {
+                    pinBuf = '';
+                    renderPinDots();
+                    return;
+                }
+                if (String(admin.pin) === pinBuf) {
+                    S.role = 'admin';
+                    S.userId = admin.id;
+                    S.isMain = admin.isMain;
+                    enterApp();
+                } else {
+                    err.textContent = 'Wrong PIN. Try again.';
+                    pinBuf = '';
+                    renderPinDots();
+                }
+            } else {
+                const staff = gStaff().find(s => s.id === loginUserId);
+                if (!staff) {
+                    pinBuf = '';
+                    renderPinDots();
+                    return;
+                }
+                if (String(staff.pin) === pinBuf) {
+                    S.role = 'staff';
+                    S.userId = staff.id;
+                    enterApp();
+                } else {
+                    err.textContent = 'Wrong PIN. Try again.';
+                    pinBuf = '';
+                    renderPinDots();
+                }
+            }
+        }
+
+        function enterApp() {
+            document.getElementById('sLogin').style.display = 'none';
+            if (S.role === 'admin') {
+                document.getElementById('bnv').style.display = 'flex';
+                navTo('list');
+            } else {
+                document.getElementById('bnvSt').style.display = 'flex';
+                S.stMon = nowMon();
+                navSt('home');
+            }
+        }
+
+        function doLogout() {
+            S.role = null;
+            S.userId = null;
+            S.isMain = false;
+            pinBuf = '';
+            loginUserId = null;
+            ['bnv', 'bnvSt'].forEach(id => document.getElementById(id).style.display = 'none');
+            document.querySelectorAll('.scr').forEach(el => el.classList.remove('on'));
+            renderPinDots();
+            selRole('admin');
+            document.getElementById('pinErr').textContent = '';
+            document.getElementById('sLogin').style.display = 'flex';
+        }
+
+        // ── ADMIN NAV ─────────────────────────────────
+        const ADMIN_SCREENS = ['sList', 'sReqs', 'sSalary', 'sSettings', 'sStaffForm', 'sStaffDetail', 'sAdminForm', 'sAdminDetail'];
+
+        function navTo(v) {
+            ADMIN_SCREENS.forEach(id => document.getElementById(id).classList.remove('on'));
+            document.getElementById('bnv').style.display = 'flex';
+            const mp = {
+                list: 'sList',
+                reqs: 'sReqs',
+                salary: 'sSalary',
+                settings: 'sSettings'
+            };
+            if (mp[v]) document.getElementById(mp[v]).classList.add('on');
+            ['nSt', 'nRq', 'nSal', 'nSet'].forEach(id => document.getElementById(id).classList.remove('on'));
+            const nm = {
+                list: 'nSt',
+                reqs: 'nRq',
+                salary: 'nSal',
+                settings: 'nSet'
+            };
+            if (nm[v]) document.getElementById(nm[v]).classList.add('on');
+            S.view = v;
+            if (v === 'list') renderList();
+            if (v === 'reqs') {
+                renderReqs();
+                updateBadge();
+            }
+            if (v === 'salary') {
+                S.ovMon = S.ovMon || nowMon();
+                renderOv();
+            }
+            if (v === 'settings') renderSettings();
+        }
+
+        function showAdminScr(id) {
+            ADMIN_SCREENS.forEach(x => document.getElementById(x).classList.remove('on'));
+            document.getElementById(id).classList.add('on');
+            document.getElementById('bnv').style.display = 'none';
+        }
+
+        function goBack() {
+            navTo(S.prev || 'list');
+        }
+
+        function updateBadge() {
+            const n = gLvReqs().filter(r => r.status === 'pending').length + gAdvReqs().filter(r => r.status === 'pending').length + gPtReqs().filter(r => r.status === 'pending').length;
+            const b = document.getElementById('rqBdg');
+            b.style.display = n > 0 ? 'flex' : 'none';
+            b.textContent = n;
+        }
+
+        // ── SETTINGS ──────────────────────────────────
+        function renderSettings() {
+            const me = gAdmins().find(a => a.id === S.userId);
+            const isMain = S.isMain;
+            document.getElementById('settingsCont').innerHTML = `
+    <p class="stl" style="margin-top:0">My Profile</p>
+    <div class="crd" style="cursor:pointer" onclick="showAdminProfile('${S.userId}')">
+      <div class="ucd">
+        <div class="avt adm"><span>${inits(me?.name||'A')}</span></div>
+        <div class="sif"><div class="snm">${me?.name||'Admin'}</div><div class="ssu">${me?.isMain?'Main Admin':(me?.role||'Admin')} · Tap to view profile</div></div>
+        <span style="color:var(--mu);font-size:18px">›</span>
+      </div>
+    </div>
+    ${isMain?`
+    <p class="stl">Manage Admins</p>
+    <div id="adminListInSettings"></div>
+    <button class="btn bpu2" style="margin-bottom:12px" onclick="showAdminForm(null)">+ Add Admin</button>
+    `:''}
+    <p class="stl">About</p>
+    <div class="crd"><div style="font-size:14px;color:var(--mu)">Restaurant Staff Manager · All data stored locally on your device. Default admin PIN is 1234 (change in your profile).</div></div>
+  `;
+  if(isMain) renderAdminListInSettings();
+}
+
+async function renderAdminListInSettings(){
+  const admins=gAdmins();
+  const cont=document.getElementById('adminListInSettings');
+  if(!cont)return;
+  const rows=await Promise.all(admins.map(async a=>{
+    const ph=await dbGet('aph_'+a.id);
+    return{a,ph};
+  }));
+  cont.innerHTML=rows.map(({a,ph})=>`
+    <div class="crd" onclick="showAdminProfile('${a.id}')">
+      <div class="ucd">
+        <div class="avt adm">${ph?`<img src="${ph}">`:`<span>${inits(a.name)}</span>`}</div>
+        <div class="sif"><div class="snm">${a.name}</div><div class="ssu">${a.isMain?'Main Admin':(a.role||'Admin')}${a.phone?' · '+a.phone:''}</div></div>
+        ${a.isMain?'<span class="bdg bpu">Main</span>':'<button class="btn brd bxs" onclick="event.stopPropagation();confirmDelAdmin(\''+a.id+'\')">Remove</button>'}
+      </div>
+    </div>`).join('');
+}
+
+// ── ADMIN FORM ────────────────────────────────
+function showAdminForm(id){
+  S.prev=S.view; S.afEditId=id;
+  ['afNm','afPh','afRl','afPin'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('afPhPrev').style.display='none';document.getElementById('afPhPh').style.display='';
+  S.tmpImgs.afPh=null;
+  if(id){
+    const a=gAdmins().find(x=>x.id===id); if(!a)return;
+    document.getElementById('afTl').textContent='Edit Admin';
+    document.getElementById('afNm').value=a.name||'';
+    document.getElementById('afPh').value=a.phone||'';
+    document.getElementById('afRl').value=a.role||'';
+    document.getElementById('afPin').value=a.pin||'';
+    document.getElementById('afDelBtn').style.display=a.isMain?'none':'block';
+    dbGet('aph_'+id).then(ph=>{if(ph){S.tmpImgs.afPh=ph;const el=document.getElementById('afPhPrev');el.src=ph;el.style.display='block';document.getElementById('afPhPh').style.display='none';}});
+  } else {
+    document.getElementById('afTl').textContent='Add Admin';
+    document.getElementById('afDelBtn').style.display='none';
+  }
+  showAdminScr('sAdminForm'); S.view='adminForm';
+}
+
+async function saveAdminMember(){
+  const name=document.getElementById('afNm').value.trim();
+  const pin=document.getElementById('afPin').value.trim();
+  if(!name){toast('Please enter a name');return;}
+  if(!pin||pin.length!==4||isNaN(pin)){toast('Please set a 4-digit PIN');return;}
+  const all=gAdmins();
+  const id=S.afEditId||('adm-'+uid());
+  const obj={id,name,phone:document.getElementById('afPh').value.trim(),role:document.getElementById('afRl').value.trim(),pin,isMain:false,joinDate:today()};
+  if(S.afEditId){const i=all.findIndex(x=>x.id===S.afEditId);if(i>=0){obj.isMain=all[i].isMain;obj.joinDate=all[i].joinDate;all[i]=obj;}else{all.push(obj);}}
+  else{all.push(obj);}
+  sAdmins(all);
+  if(S.tmpImgs.afPh)await dbSet('aph_'+id,S.tmpImgs.afPh);
+  toast(S.afEditId?'Admin updated!':'Admin added!');
+  navTo('settings');
+}
+
+function confirmDelAdmin(id){
+  const a=gAdmins().find(x=>x.id===id); if(!a||a.isMain){toast("Can't remove main admin");return;}
+  if(!confirm(`Remove admin ${a.name}?`))return;
+  sAdmins(gAdmins().filter(x=>x.id!==id));
+  dbDel('aph_'+id);
+  toast('Admin removed'); navTo('settings');
+}
+
+// ── ADMIN PROFILE VIEW ────────────────────────
+async function showAdminProfile(id){
+  S.prev=S.view; S.selAdminId=id;
+  const a=gAdmins().find(x=>x.id===id); if(!a)return;
+  const ph=await dbGet('aph_'+id);
+  const av=document.getElementById('adAv');
+  av.innerHTML=ph?`<img src="${ph}">`:`<span>${inits(a.name)}</span>`;
+  document.getElementById('adTl').textContent=a.isMain?'Main Admin':'Admin Profile';
+  document.getElementById('adNm').textContent=a.name;
+  document.getElementById('adRl').textContent=(a.role||'Admin')+(a.phone?' · '+a.phone:'');
+  document.getElementById('adBdg').innerHTML=`<span class="bdg bpu">${a.isMain?'👑 Main Admin':'Admin'}</span>`;
+  document.getElementById('adInfo').innerHTML=`
+    <div><div class="ilb">Name</div><div class="ivl">${a.name}</div></div>
+    <div><div class="ilb">Role</div><div class="ivl">${a.role||'Admin'}</div></div>
+    ${a.phone?`<div><div class="ilb">Phone</div><div class="ivl">${a.phone}</div></div>`:''}
+    <div><div class="ilb">Since</div><div class="ivl">${fmtD(a.joinDate)}</div></div>
+  `;
+  // Edit button: own profile or main admin can edit anyone
+  const canEdit=id===S.userId||S.isMain;
+  document.getElementById('adEditBtn').innerHTML=canEdit?`<button class="hbt" onclick="showAdminForm('${id}')">Edit</button>`:'';
+  // Reset PIN: main admin can reset any; admin can reset own
+  const canReset=id===S.userId||S.isMain;
+  document.getElementById('adResetPin').innerHTML=canReset?`<button class="btn bo" onclick="showResetPinModal('admin','${id}')">🔑 Reset PIN</button>`:'';
+  showAdminScr('sAdminDetail'); S.view='adminDetail';
+}
+
+// ── RESET PIN ─────────────────────────────────
+function showResetPinModal(type,id){
+  S.resetPinType=type; S.resetPinId=id;
+  const name=type==='staff'?gStaff().find(s=>s.id===id)?.name:gAdmins().find(a=>a.id===id)?.name;
+  document.getElementById('resetPinFor').textContent=`Reset PIN for: ${name||''}`;
+  document.getElementById('newPinVal').value='';
+  showM('mResetPin');
+}
+function doResetPin(){
+  const newPin=document.getElementById('newPinVal').value.trim();
+  if(!newPin||newPin.length!==4||isNaN(newPin)){toast('Please enter a valid 4-digit PIN');return;}
+  if(S.resetPinType==='staff'){
+    const all=gStaff();const i=all.findIndex(s=>s.id===S.resetPinId);if(i>=0){all[i].pin=newPin;sStaff(all);}
+  } else {
+    const all=gAdmins();const i=all.findIndex(a=>a.id===S.resetPinId);if(i>=0){all[i].pin=newPin;sAdmins(all);}
+  }
+  hideM('mResetPin'); toast('PIN updated successfully!');
+}
+
+// ── STAFF LIST ────────────────────────────────
+async function renderList(){
+  updateBadge();
+  const staff=gStaff();
+  const q=(document.getElementById('srch')?.value||'').toLowerCase();
+  const filtered=staff.filter(s=>s.name.toLowerCase().includes(q));
+  const cont=document.getElementById('listCont');
+  if(!filtered.length){cont.innerHTML=`<div class="ept"><div class="eic">👥</div><div class="etl">${q?'No results':'No staff yet'}</div><div class="esu">${q?'Try a different name':'Tap "+ Add" above'}</div></div>`;return;}
+  const rows=await Promise.all(filtered.map(async s=>{const ph=await dbGet('sph_'+s.id);const active=!s.endDate||s.endDate>=today();return{s,ph,active};}));
+  cont.innerHTML=rows.map(({s,ph,active})=>`
+    <div class="crd" onclick="showStaffDetail('${s.id}')">
+      <div class="ucd">
+        <div class="avt">${ph?`<img src="${ph}">`:`<span>${inits(s.name)}</span>`}</div>
+        <div class="sif"><div class="snm">${s.name}</div><div class="ssu">${s.role||'Staff'} · Joined ${fmtD(s.joinDate)}</div></div>
+        <div style="text-align:right"><div style="font-size:15px;font-weight:800;color:var(--p)">${fmtM(s.salary)}<span style="font-size:10px;font-weight:400">/mo</span></div><span class="bdg ${active?'ba':'bl2'}">${active?'Active':'Left'}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── STAFF FORM ────────────────────────────────
+function showStaffForm(id){
+  S.prev=S.view; S.sfEditId=id; S.tmpImgs={};
+  ['sfNm','sfPh','sfAd','sfRl','sfSal','sfJn','sfEn','sfANo','sfPin'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('sfLv').value='2';
+  document.getElementById('sfPhPrev').style.display='none';document.getElementById('sfPhPh').style.display='';
+  document.getElementById('sfAdPrev').style.display='none';document.getElementById('sfAdPh').style.display='';
+  if(id){
+    const s=gStaff().find(x=>x.id===id); if(!s)return;
+    document.getElementById('sfTl').textContent='Edit Staff';
+    document.getElementById('sfNm').value=s.name||'';document.getElementById('sfPh').value=s.phone||'';document.getElementById('sfAd').value=s.address||'';document.getElementById('sfRl').value=s.role||'';document.getElementById('sfSal').value=s.salary||'';document.getElementById('sfJn').value=s.joinDate||'';document.getElementById('sfEn').value=s.endDate||'';document.getElementById('sfLv').value=s.paidLeaves??2;document.getElementById('sfANo').value=s.aadNo||'';document.getElementById('sfPin').value=s.pin||'';
+    document.getElementById('sfDelBtn').style.display='block';
+    dbGet('sph_'+id).then(ph=>{if(ph){S.tmpImgs.sfPh=ph;const e=document.getElementById('sfPhPrev');e.src=ph;e.style.display='block';document.getElementById('sfPhPh').style.display='none';}});
+    dbGet('sad_'+id).then(ad=>{if(ad){S.tmpImgs.sfAd2=ad;const e=document.getElementById('sfAdPrev');e.src=ad;e.style.display='block';document.getElementById('sfAdPh').style.display='none';}});
+  } else {
+    document.getElementById('sfTl').textContent='Add Staff';document.getElementById('sfJn').value=today();document.getElementById('sfDelBtn').style.display='none';
+  }
+  showAdminScr('sStaffForm'); S.view='staffForm';
+}
+
+function handleImg(e,key){
+  const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const src=ev.target.result; S.tmpImgs[key]=src;
+    if(key==='sfPh'){const el=document.getElementById('sfPhPrev');el.src=src;el.style.display='block';document.getElementById('sfPhPh').style.display='none';}
+    else if(key==='sfAd2'){const el=document.getElementById('sfAdPrev');el.src=src;el.style.display='block';document.getElementById('sfAdPh').style.display='none';}
+    else if(key==='afPh'){const el=document.getElementById('afPhPrev');el.src=src;el.style.display='block';document.getElementById('afPhPh').style.display='none';}
+  };
+  r.readAsDataURL(file);
+}
+
+async function saveStaffMember(){
+  const name=document.getElementById('sfNm').value.trim();
+  const sal=parseFloat(document.getElementById('sfSal').value);
+  const joinDate=document.getElementById('sfJn').value;
+  const pin=document.getElementById('sfPin').value.trim();
+  if(!name){toast('Please enter a name');return;}
+  if(!sal||sal<=0){toast('Please enter a valid salary');return;}
+  if(!joinDate){toast('Please enter joining date');return;}
+  if(!pin||pin.length!==4||isNaN(pin)){toast('Please set a 4-digit PIN');return;}
+  const all=gStaff();
+  const id=S.sfEditId||('st-'+uid());
+  const obj={id,name,phone:document.getElementById('sfPh').value.trim(),address:document.getElementById('sfAd').value.trim(),role:document.getElementById('sfRl').value.trim(),salary:sal,joinDate,endDate:document.getElementById('sfEn').value||null,paidLeaves:parseInt(document.getElementById('sfLv').value)||2,aadNo:document.getElementById('sfANo').value.trim(),pin};
+  if(S.sfEditId){const i=all.findIndex(x=>x.id===S.sfEditId);if(i>=0)all[i]=obj;}else{all.push(obj);}
+  sStaff(all);
+  if(S.tmpImgs.sfPh)await dbSet('sph_'+id,S.tmpImgs.sfPh);
+  if(S.tmpImgs.sfAd2)await dbSet('sad_'+id,S.tmpImgs.sfAd2);
+  toast(S.sfEditId?'Staff updated!':'Staff added!');
+  navTo('list');
+}
+
+function confirmDelStaff(){
+  const s=gStaff().find(x=>x.id===S.sfEditId); if(!s)return;
+  if(!confirm(`Remove ${s.name}? All their records will be deleted.`))return;
+  sStaff(gStaff().filter(x=>x.id!==S.sfEditId));
+  sLeaves(gLeaves().filter(l=>l.sid!==S.sfEditId));
+  sAdv2(gAdv().filter(a=>a.sid!==S.sfEditId));
+  sLvReqs(gLvReqs().filter(r=>r.sid!==S.sfEditId));
+  sAdvReqs(gAdvReqs().filter(r=>r.sid!==S.sfEditId));
+  dbDel('sph_'+S.sfEditId); dbDel('sad_'+S.sfEditId);
+  toast('Staff removed'); navTo('list');
+}
+
+// ── STAFF DETAIL (admin) ──────────────────────
+async function showStaffDetail(id){
+  S.prev=S.view; S.selStaffId=id; S.staffTab='pro'; S.dMon=nowMon();
+  showAdminScr('sStaffDetail'); S.view='staffDetail';
+  await renderStaffDetail();
+}
+
+async function renderStaffDetail(){
+  const id=S.selStaffId;
+  const s=gStaff().find(x=>x.id===id); if(!s)return;
+  const active=!s.endDate||s.endDate>=today();
+  document.getElementById('sdTl').textContent=s.name;
+  document.getElementById('sdNm').textContent=s.name;
+  document.getElementById('sdRl').textContent=(s.role||'Staff')+(s.phone?' · '+s.phone:'');
+  document.getElementById('sdBdg').innerHTML=`<span class="bdg ${active?'ba':'bl2'}">${active?'🟢 Active':'🔴 Left'}</span>`;
+  const av=document.getElementById('sdAv');
+  const ph=await dbGet('sph_'+id);
+  av.innerHTML=ph?`<img src="${ph}">`:`<span>${inits(s.name)}</span>`;
+  document.getElementById('sdInfo').innerHTML=`
+    <div><div class="ilb">Monthly Salary</div><div class="ivl" style="color:var(--p);font-size:16px;font-weight:800">${fmtM(s.salary)}</div></div>
+    <div><div class="ilb">Joining Date</div><div class="ivl">${fmtD(s.joinDate)}</div></div>
+    <div><div class="ilb">Paid Leaves/Month</div><div class="ivl">${s.paidLeaves??2}</div></div>
+    <div><div class="ilb">Login PIN</div><div class="ivl">${s.pin||'—'}</div></div>
+    ${s.endDate?`<div><div class="ilb">End Date</div><div class="ivl">${fmtD(s.endDate)}</div></div>`:''}
+    ${s.phone?`<div><div class="ilb">Phone</div><div class="ivl">${s.phone}</div></div>`:''}
+    ${s.aadNo?`<div><div class="ilb">Aadhaar No.</div><div class="ivl">${s.aadNo}</div></div>`:''}
+    ${s.address?`<div style="grid-column:1/-1"><div class="ilb">Address</div><div class="ivl">${s.address}</div></div>`:''}
+  `;
+  const ad=await dbGet('sad_'+id);
+  window._aadSrc=ad||null;
+  document.getElementById('sdAad').innerHTML=ad?`<div class="crd" style="padding:12px"><div style="font-size:12px;font-weight:700;color:var(--mu);margin-bottom:8px">AADHAAR CARD</div><img class="dct" src="${ad}" onclick="viewAad()"></div>`:'';
+  setStaffTab(S.staffTab);
+}
+
+function viewAad(){if(window._aadSrc){document.getElementById('aadImg').src=window._aadSrc;showM('mAad');}}
+function editCurrStaff(){showStaffForm(S.selStaffId);}
+
+function setStaffTab(t){
+  S.staffTab=t;
+  ['pro','lvs','sal'].forEach(x=>{document.getElementById('sdt-'+x).style.display=x===t?'':'none';document.getElementById('t'+x).classList.toggle('on',x===t);});
+  if(t==='lvs')renderStaffLvs();
+  if(t==='sal')renderStaffSal();
+}
+
+// ── LEAVES (admin detail) ─────────────────────
+function renderStaffLvs(){
+  const{y,m}=S.dMon; const id=S.selStaffId;
+  const s=gStaff().find(x=>x.id===id); const allowed=s?.paidLeaves??2;
+  const pfx=`${y}-${p2(m)}`;
+  const lvs=gLeaves().filter(l=>l.sid===id&&l.date.startsWith(pfx));
+  const exDays=gExtra().filter(e=>e.sid===id&&e.date.startsWith(pfx));
+  const pndReqs=gLvReqs().filter(r=>r.sid===id&&r.date.startsWith(pfx)&&r.status==='pending');
+  const lset=new Set(lvs.map(l=>l.date));
+  const exset=new Set(exDays.map(e=>e.date));
+  const pendSet=new Set(pndReqs.map(r=>r.date));
+  const total=lvs.length; const unpaid=Math.max(0,total-allowed);
+  document.getElementById('sdLvML').textContent=monName(m,y);document.getElementById('sdSalML').textContent=monName(m,y);
+  document.getElementById('sdLvT').textContent=total;document.getElementById('sdLvP').textContent=Math.min(total,allowed);document.getElementById('sdLvU').textContent=unpaid;
+  const days=dim(y,m); const firstDay=new Date(y,m-1,1).getDay(); const td=today();
+  const DN=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let cal=DN.map(d=>`<div class="cdn">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++)cal+=`<div class="cdy emp"></div>`;
+  const sortedLv=[...lset].sort();
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${p2(m)}-${p2(d)}`;
+    const isLv=lset.has(ds); const isEx=exset.has(ds); const isPnd=pendSet.has(ds); const isTd=ds===td;
+    const isPd2=isLv&&sortedLv.indexOf(ds)<allowed;
+    cal+=`<div class="cdy${isEx?' ex':''}${isLv&&!isEx?(isPd2?' lv pd':' lv'):''}${isPnd?' pnd':''}${isTd?' td':''}" onclick="togLv('${ds}')" ondblclick="togExtra('${ds}');event.stopPropagation()" title="${isEx?'Extra work day (double-tap to remove)':isLv?'Leave day':'Tap=leave, double-tap=extra day'}">${d}</div>`;
+  }
+  document.getElementById('sdCal').innerHTML=cal;
+  // Legend
+  const legHtml=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11px;font-weight:600">
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#fee2e2;margin-right:3px"></span>Leave</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#d1fae5;margin-right:3px"></span>Extra day</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#dbeafe;margin-right:3px"></span>Pending</span>
+    <span style="color:var(--mu)">Tap = leave · Double-tap = extra day</span>
+  </div>`;
+  const ll=document.getElementById('sdLvList');
+  const pndHtml=pndReqs.map(r=>`<div class="lit"><div><div style="font-size:14px;font-weight:600">${fmtD(r.date)} <span class="bdg bp">Pending leave</span></div>${r.reason?`<div style="font-size:12px;color:var(--mu)">${r.reason}</div>`:''}</div><div style="display:flex;gap:6px"><button class="btn bgn bxs" onclick="appLvReq('${r.id}')">✓</button><button class="btn brd bxs" onclick="rejLvReq('${r.id}')">✗</button></div></div>`).join('');
+  const lvHtml=lvs.sort((a,b)=>a.date>b.date?1:-1).map(l=>`<div class="lit"><div><div style="font-size:14px;font-weight:600">${fmtD(l.date)} <span class="bdg bl2">Leave</span></div>${l.note?`<div style="font-size:12px;color:var(--mu)">${l.note}</div>`:''}</div><button style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px" onclick="remLv('${l.id}')">🗑️</button></div>`).join('');
+  const exHtml=exDays.sort((a,b)=>a.date>b.date?1:-1).map(e=>`<div class="lit"><div><div style="font-size:14px;font-weight:600">${fmtD(e.date)} <span class="bdg ba">Extra day worked</span></div><div style="font-size:12px;color:var(--gn);font-weight:600">+${fmtM(Math.round((s?.salary||0)/days))}</div></div><button style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px" onclick="remExtra('${e.id}')">🗑️</button></div>`).join('');
+  ll.innerHTML=legHtml+(pndHtml+exHtml+lvHtml||`<div style="text-align:center;color:var(--mu);padding:16px;font-size:13px">No leaves or extra days this month</div>`);
+}
+
+function togLv(ds){const id=S.selStaffId;const lvs=gLeaves();const ex=lvs.find(l=>l.sid===id&&l.date===ds);if(ex){sLeaves(lvs.filter(l=>l.id!==ex.id));toast('Leave removed');}else{lvs.push({id:uid(),sid:id,date:ds,note:'',src:'admin'});sLeaves(lvs);toast('Leave marked');}renderStaffLvs();}
+function remLv(lid){sLeaves(gLeaves().filter(l=>l.id!==lid));renderStaffLvs();toast('Leave removed');}
+function togExtra(ds){const id=S.selStaffId;const all=gExtra();const ex=all.find(e=>e.sid===id&&e.date===ds);if(ex){sExtra(all.filter(e=>e.id!==ex.id));toast('Extra day removed');}else{all.push({id:uid(),sid:id,date:ds});sExtra(all);toast('Extra day marked ✅');}renderStaffLvs();if(S.staffTab==='sal')renderStaffSal();}
+function remExtra(eid){sExtra(gExtra().filter(e=>e.id!==eid));renderStaffLvs();if(S.staffTab==='sal')renderStaffSal();toast('Extra day removed');}
+function chgSdM(dir){let{y,m}=S.dMon;m+=dir;if(m>12){m=1;y++;}if(m<1){m=12;y--;}S.dMon={y,m};if(S.staffTab==='lvs')renderStaffLvs();if(S.staffTab==='sal')renderStaffSal();}
+
+function appLvReq(rid){const reqs=gLvReqs();const req=reqs.find(r=>r.id===rid);if(!req)return;req.status='approved';sLvReqs(reqs);const lvs=gLeaves();lvs.push({id:uid(),sid:req.sid,date:req.date,note:req.reason||'',src:'request'});sLeaves(lvs);toast('Leave approved');renderStaffLvs();updateBadge();}
+function rejLvReq(rid){const reqs=gLvReqs();const r=reqs.find(x=>x.id===rid);if(!r)return;r.status='rejected';sLvReqs(reqs);toast('Leave rejected');renderStaffLvs();updateBadge();}
+
+// ── SALARY (admin detail) ─────────────────────
+function renderStaffSal(){
+  const{y,m}=S.dMon; const id=S.selStaffId;
+  const s=gStaff().find(x=>x.id===id); if(!s)return;
+  document.getElementById('sdSalML').textContent=monName(m,y);
+  const pfx=monPfx(y,m);
+  const lvs=gLeaves().filter(l=>l.sid===id&&l.date.startsWith(pfx));
+  const exDays=gExtra().filter(e=>e.sid===id&&e.date.startsWith(pfx));
+  const advs=gAdv().filter(a=>a.sid===id&&a.date.startsWith(pfx));
+  const apvAdv=gAdvReqs().filter(a=>a.sid===id&&a.date.startsWith(pfx)&&a.status==='approved');
+  const allowed=s.paidLeaves??2; const totalDays=dim(y,m);
+  const effSal=getEffSalary(id,y,m); const dayRate=effSal/totalDays;
+  const extra=Math.max(0,lvs.length-allowed); const lvDed=extra*dayRate;
+  const exPay=exDays.length*dayRate;
+  const totalAdv=advs.reduce((sum,a)=>sum+(parseFloat(a.amt)||0),0)+apvAdv.reduce((sum,a)=>sum+(parseFloat(a.amt)||0),0);
+  const bonusRec=getBonus(id,y,m); const bonusAmt=parseFloat(bonusRec?.amount)||0;
+  const net=effSal-lvDed+exPay+bonusAmt-totalAdv; const paid=isPaid(id,y,m);
+  const isOv=gSalOv().some(o=>o.sid===id&&o.y===y&&o.m===m);
+  document.getElementById('sdPaidBnr').innerHTML=paid?`<div class="pdb"><div class="pdi">✅</div><div><div class="pdt">Salary Paid</div><div style="font-size:12px;color:var(--mu)">Paid on ${fmtD(gPaid().find(p=>p.sid===id&&p.y===y&&p.m===m)?.paidDate)}</div></div></div>`:'';
+  document.getElementById('mrkPaidBtn').style.display=paid?'none':'block';
+  document.getElementById('sdSalBrk').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div><span class="sl">Gross Salary${isOv?' <span class="bdg bbl">Override</span>':''}</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="sv">${fmtM(effSal)}</span><button class="btn bo bxs" onclick="showSalOvMod(${y},${m})">✏️</button></div>
+    </div>
+    <div class="srw"><span class="sl">Daily Rate</span><span class="sv">${fmtM(Math.round(dayRate))}/day</span></div>
+    <div class="srw grn"><span class="sl">Paid Leaves (${Math.min(lvs.length,allowed)})</span><span class="sv">₹0 deducted</span></div>
+    <div class="srw ded"><span class="sl">Unpaid Leaves (${extra} × ${fmtM(Math.round(dayRate))})</span><span class="sv">− ${fmtM(Math.round(lvDed))}</span></div>
+    ${exDays.length>0?`<div class="srw grn"><span class="sl">Extra Days (${exDays.length} × ${fmtM(Math.round(dayRate))})</span><span class="sv">+ ${fmtM(Math.round(exPay))}</span></div>`:''}
+    <div class="srw${bonusAmt>0?' grn':''}">
+      <span class="sl">Bonus${bonusRec?.note?' ('+bonusRec.note+')':''}</span>
+      <div style="display:flex;align-items:center;gap:6px"><span class="sv">${bonusAmt>0?'+ '+fmtM(bonusAmt):'₹0'}</span><button class="btn bo bxs" onclick="showBonusMod(${y},${m})">✏️</button></div>
+    </div>
+    <div class="srw ded"><span class="sl">Advances</span><span class="sv">− ${fmtM(totalAdv)}</span></div>
+    <div class="srw tot"><span class="sl">Net Payable (by 10th)</span><span class="sv">${fmtM(Math.round(net))}</span></div>
+  `;
+  const pndAdv=gAdvReqs().filter(a=>a.sid===id&&a.date.startsWith(pfx)&&a.status==='pending');
+  const al=document.getElementById('sdAdvList');
+  const pHtml=pndAdv.map(a=>`<div class="lit"><div><div style="font-size:14px;font-weight:700">${fmtM(a.amt)} <span class="bdg bp">Pending</span></div><div style="font-size:12px;color:var(--mu)">${a.reason||''}</div></div><div style="display:flex;gap:6px"><button class="btn bgn bxs" onclick="appAdvReq('${a.id}')">✓</button><button class="btn brd bxs" onclick="rejAdvReq('${a.id}')">✗</button></div></div>`).join('');
+  const apHtml=apvAdv.map(a=>`<div class="lit"><div><div style="font-size:14px;font-weight:700">${fmtM(a.amt)} <span class="bdg ba">Approved</span></div><div style="font-size:12px;color:var(--mu)">${fmtD(a.date)}${a.reason?' · '+a.reason:''}</div></div></div>`).join('');
+  const dHtml=advs.map(a=>`<div class="lit"><div><div style="font-size:14px;font-weight:700">${fmtM(a.amt)}</div><div style="font-size:12px;color:var(--mu)">${fmtD(a.date)}${a.note?' · '+a.note:''}</div></div><div style="display:flex;gap:4px"><button style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px" onclick="showEditAdv('${a.id}')">✏️</button><button style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px" onclick="remAdv('${a.id}')">🗑️</button></div></div>`).join('');
+  al.innerHTML=pHtml+apHtml+dHtml||`<div style="text-align:center;color:var(--mu);padding:12px;font-size:13px">No advances this month</div>`;
+}
+
+function showAdvMod(){document.getElementById('advDt').value=today();document.getElementById('advAm').value='';document.getElementById('advNo').value='';showM('mAdv');}
+function saveAdv(){
+  const date=document.getElementById('advDt').value; const amt=parseFloat(document.getElementById('advAm').value);
+  if(!date){toast('Please select date');return;} if(!amt||amt<=0){toast('Please enter amount');return;}
+  const note=document.getElementById('advNo').value.trim();
+  const advs=gAdv(); advs.push({id:uid(),sid:S.selStaffId,date,amt,note}); sAdv2(advs);
+  hideM('mAdv'); toast('Advance saved'); renderStaffSal();
+}
+function remAdv(aid){sAdv2(gAdv().filter(a=>a.id!==aid));renderStaffSal();toast('Advance removed');}
+function appAdvReq(rid){const reqs=gAdvReqs();const req=reqs.find(r=>r.id===rid);if(!req)return;req.status='approved';sAdvReqs(reqs);toast('Advance approved');renderStaffSal();updateBadge();}
+function rejAdvReq(rid){const reqs=gAdvReqs();const r=reqs.find(x=>x.id===rid);if(!r)return;r.status='rejected';sAdvReqs(reqs);toast('Advance rejected');renderStaffSal();updateBadge();}
+function markPaid(){const{y,m}=S.dMon;const all=gPaid();all.push({sid:S.selStaffId,y,m,paidDate:today()});sPaid(all);toast('Salary marked as paid!');renderStaffSal();}
+
+// ── REQUESTS SCREEN ───────────────────────────
+let reqTab='leave';
+function setReqTab(t){reqTab=t;document.getElementById('rtL').classList.toggle('on',t==='leave');document.getElementById('rtA').classList.toggle('on',t==='adv');document.getElementById('rtP').classList.toggle('on',t==='pts');renderReqs();}
+function renderReqs(){
+  const cont=document.getElementById('reqCont'); const staff=gStaff();
+  const nm=id=>(staff.find(s=>s.id===id)||{name:'Unknown'}).name;
+  if(reqTab==='leave'){
+    const reqs=gLvReqs().sort((a,b)=>b.date>a.date?1:-1);
+    if(!reqs.length){cont.innerHTML=`<div class="ept"><div class="eic">📅</div><div class="etl">No leave requests</div></div>`;return;}
+    cont.innerHTML=reqs.map(r=>`<div class="rqc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div><div style="font-weight:700;font-size:14px">${nm(r.sid)}</div><div style="font-size:12px;color:var(--mu)">Date: ${fmtD(r.date)}${r.reason?' · '+r.reason:''}</div></div><span class="bdg ${r.status==='pending'?'bp':r.status==='approved'?'ba':'bl2'}">${r.status}</span></div>${r.status==='pending'?`<div style="display:flex;gap:8px"><button class="btn bgn bsm" style="flex:1" onclick="appLvGlobal('${r.id}')">✓ Approve</button><button class="btn brd bsm" style="flex:1" onclick="rejLvGlobal('${r.id}')">✗ Reject</button></div>`:''}</div>`).join('');
+  } else if(reqTab==='adv'){
+    const reqs=gAdvReqs().sort((a,b)=>b.date>a.date?1:-1);
+    if(!reqs.length){cont.innerHTML=`<div class="ept"><div class="eic">💸</div><div class="etl">No advance requests</div></div>`;return;}
+    cont.innerHTML=reqs.map(r=>`<div class="rqc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div><div style="font-weight:700;font-size:14px">${nm(r.sid)}</div><div style="font-size:12px;color:var(--mu)">${fmtM(r.amt)} · ${fmtD(r.date)}${r.reason?' · '+r.reason:''}</div></div><span class="bdg ${r.status==='pending'?'bp':r.status==='approved'?'ba':'bl2'}">${r.status}</span></div>${r.status==='pending'?`<div style="display:flex;gap:8px"><button class="btn bgn bsm" style="flex:1" onclick="appAdvGlobal('${r.id}')">✓ Approve</button><button class="btn brd bsm" style="flex:1" onclick="rejAdvGlobal('${r.id}')">✗ Reject</button></div>`:''}</div>`).join('');
+  } else {
+    const reqs=gPtReqs().sort((a,b)=>b.date>a.date?1:-1);
+    if(!reqs.length){cont.innerHTML=`<div class="ept"><div class="eic">⭐</div><div class="etl">No points requests</div></div>`;return;}
+    cont.innerHTML=reqs.map(r=>{
+      const bal=getPtBal(r.sid);
+      return`<div class="rqc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div><div style="font-weight:700;font-size:14px">${nm(r.sid)}</div><div style="font-size:12px;color:var(--mu)">⭐ ${r.points} pts · Balance: ${bal} pts · ${fmtD(r.date)}${r.reason?' · '+r.reason:''}</div></div><span class="bdg ${r.status==='pending'?'bp':r.status==='approved'?'ba':'bl2'}">${r.status}</span></div>${r.status==='pending'?`<div style="display:flex;gap:8px"><button class="btn bgn bsm" style="flex:1" onclick="appPtReq('${r.id}')">✓ Approve</button><button class="btn brd bsm" style="flex:1" onclick="rejPtReq('${r.id}')">✗ Reject</button></div>`:''}</div>`;
+    }).join('');
+  }
+}
+function appLvGlobal(rid){const reqs=gLvReqs();const req=reqs.find(r=>r.id===rid);if(!req)return;req.status='approved';sLvReqs(reqs);const lvs=gLeaves();lvs.push({id:uid(),sid:req.sid,date:req.date,note:req.reason||'',src:'request'});sLeaves(lvs);toast('Approved');renderReqs();updateBadge();}
+function rejLvGlobal(rid){const reqs=gLvReqs();const r=reqs.find(x=>x.id===rid);if(!r)return;r.status='rejected';sLvReqs(reqs);toast('Rejected');renderReqs();updateBadge();}
+function appAdvGlobal(rid){const reqs=gAdvReqs();const req=reqs.find(r=>r.id===rid);if(!req)return;req.status='approved';sAdvReqs(reqs);toast('Approved');renderReqs();updateBadge();}
+function rejAdvGlobal(rid){const reqs=gAdvReqs();const r=reqs.find(x=>x.id===rid);if(!r)return;r.status='rejected';sAdvReqs(reqs);toast('Rejected');renderReqs();updateBadge();}
+function appPtReq(rid){const reqs=gPtReqs();const req=reqs.find(r=>r.id===rid);if(!req)return;req.status='approved';sPtReqs(reqs);const ledger=gPtLedger();ledger.push({id:uid(),sid:req.sid,date:today(),delta:req.points,type:'earned',note:req.reason||'Approved by admin'});sPtLedger(ledger);autoRedeemPts(req.sid);toast('Points approved!');renderReqs();updateBadge();}
+function rejPtReq(rid){const reqs=gPtReqs();const r=reqs.find(x=>x.id===rid);if(!r)return;r.status='rejected';sPtReqs(reqs);toast('Rejected');renderReqs();updateBadge();}
+
+// ── SALARY OVERVIEW ───────────────────────────
+function renderOv(){
+  const{y,m}=S.ovMon; document.getElementById('ovML').textContent=monName(m,y);
+  const staff=gStaff(); const cont=document.getElementById('ovList');
+  if(!staff.length){cont.innerHTML=`<div class="ept"><div class="eic">💰</div><div class="etl">No staff yet</div></div>`;return;}
+  const pfx=monPfx(y,m);
+  cont.innerHTML=staff.map(s=>{
+    const lvs=gLeaves().filter(l=>l.sid===s.id&&l.date.startsWith(pfx));
+    const exDays=gExtra().filter(e=>e.sid===s.id&&e.date.startsWith(pfx));
+    const advs=gAdv().filter(a=>a.sid===s.id&&a.date.startsWith(pfx));
+    const apvAdv=gAdvReqs().filter(a=>a.sid===s.id&&a.date.startsWith(pfx)&&a.status==='approved');
+    const allowed=s.paidLeaves??2; const totalDays=dim(y,m);
+    const effSal=getEffSalary(s.id,y,m); const dayRate=effSal/totalDays;
+    const extra=Math.max(0,lvs.length-allowed); const ded=extra*dayRate;
+    const exPay=exDays.length*dayRate;
+    const totalAdv=advs.reduce((t,a)=>t+(parseFloat(a.amt)||0),0)+apvAdv.reduce((t,a)=>t+(parseFloat(a.amt)||0),0);
+    const bonusAmt=parseFloat(getBonus(s.id,y,m)?.amount)||0;
+    const net=effSal-ded+exPay+bonusAmt-totalAdv; const paid=isPaid(s.id,y,m);
+    return`<div class="crd" onclick="showDetailFromOv('${s.id}')"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-weight:800;font-size:15px">${s.name}</div><div style="font-size:12px;color:var(--mu)">${s.role||'Staff'} · ${lvs.length} leave${lvs.length!==1?'s':''}${exDays.length>0?' · '+exDays.length+' extra':''}${bonusAmt>0?' · '+fmtM(bonusAmt)+' bonus':''} · ${fmtM(totalAdv)} adv</div></div><div style="text-align:right"><div style="font-size:11px;color:var(--mu)">Net payable</div><div style="font-size:20px;font-weight:900;color:var(--p)">${fmtM(Math.round(net))}</div>${paid?`<span class="bdg ba">✅ Paid</span>`:`${ded>0?`<div style="font-size:11px;color:var(--rd)">−${fmtM(Math.round(ded))}</div>`:''}${exPay>0||bonusAmt>0?`<div style="font-size:11px;color:var(--gn)">+${fmtM(Math.round(exPay+bonusAmt))}</div>`:''}`}</div></div></div>`;
+  }).join('');
+}
+function showDetailFromOv(id){S.prev='salary';S.selStaffId=id;S.staffTab='sal';S.dMon={...S.ovMon};showAdminScr('sStaffDetail');S.view='staffDetail';renderStaffDetail();}
+function chgOvM(dir){let{y,m}=S.ovMon;m+=dir;if(m>12){m=1;y++;}if(m<1){m=12;y--;}S.ovMon={y,m};renderOv();}
+
+// ── STAFF NAV ─────────────────────────────────
+function navSt(v){
+  ['sStHome','sStLeave','sStSalary'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById('bnvSt').style.display='flex';
+  const mp={home:'sStHome',leave:'sStLeave',salary:'sStSalary'};
+  if(mp[v])document.getElementById(mp[v]).classList.add('on');
+  ['nsH','nsL','nsS'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  const nm={home:'nsH',leave:'nsL',salary:'nsS'};
+  if(nm[v])document.getElementById(nm[v]).classList.add('on');
+  if(v==='home')renderStHome();
+  if(v==='leave'){S.stMon=S.stMon||nowMon();renderStLeave();}
+  if(v==='salary'){S.stMon=S.stMon||nowMon();renderStSal();}
+}
+
+// ── STAFF HOME ────────────────────────────────
+async function renderStHome(){
+  const id=S.userId; const s=gStaff().find(x=>x.id===id); if(!s)return;
+  document.getElementById('stHTl').textContent=s.name.split(' ')[0]+"'s Dashboard";
+  const{y,m}=nowMon(); const pfx=monPfx(y,m);
+  const lvs=gLeaves().filter(l=>l.sid===id&&l.date.startsWith(pfx));
+  const exDays=gExtra().filter(e=>e.sid===id&&e.date.startsWith(pfx));
+  const allowed=s.paidLeaves??2; const remaining=Math.max(0,allowed-lvs.length);
+  const advs=gAdv().filter(a=>a.sid===id&&a.date.startsWith(pfx));
+  const apvAdv=gAdvReqs().filter(a=>a.sid===id&&a.date.startsWith(pfx)&&a.status==='approved');
+  const totalAdv=advs.reduce((sum,a)=>sum+(parseFloat(a.amt)||0),0)+apvAdv.reduce((sum,a)=>sum+(parseFloat(a.amt)||0),0);
+  const totalDays=dim(y,m);
+  const effSal=getEffSalary(id,y,m); const dayRate=effSal/totalDays;
+  const extra=Math.max(0,lvs.length-allowed); const exPay=exDays.length*dayRate;
+  const bonusAmt=parseFloat(getBonus(id,y,m)?.amount)||0;
+  const net=effSal-(extra*dayRate)+exPay+bonusAmt-totalAdv;
+  const paid=isPaid(id,y,m);
+  const ptBal=getPtBal(id);
+  const ph=await dbGet('sph_'+id);
+  const pendLv=gLvReqs().filter(r=>r.sid===id&&r.status==='pending').length;
+  const pendAdv=gAdvReqs().filter(r=>r.sid===id&&r.status==='pending').length;
+  const pendPt=gPtReqs().filter(r=>r.sid===id&&r.status==='pending').length;
+  document.getElementById('stHomeCont').innerHTML=`
+    <div class="shm">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avt" style="width:56px;height:56px;border:2px solid rgba(255,255,255,.4)">${ph?`<img src="${ph}">`:`<span style="font-size:18px">${inits(s.name)}</span>`}</div>
+        <div><div style="color:#fff;font-size:18px;font-weight:800">${s.name}</div><div style="color:rgba(255,255,255,.8);font-size:13px">${s.role||'Staff'}${s.phone?' · '+s.phone:''}</div></div>
+      </div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:12px">
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700">NET PAY</div>
+          <div style="font-size:20px;font-weight:900;color:#fff;margin-top:2px">${fmtM(net)}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7)">${paid?'✅ Paid':'Due 10th'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:12px">
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700">LEAVES LEFT</div>
+          <div style="font-size:20px;font-weight:900;color:#fff;margin-top:2px">${remaining}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7)">of ${allowed} paid</div>
+        </div>
+        <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:12px">
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700">⭐ POINTS</div>
+          <div style="font-size:20px;font-weight:900;color:#fff;margin-top:2px">${ptBal}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7)">100=₹100 bonus</div>
+        </div>
+      </div>
+    </div>
+    ${pendLv+pendAdv+pendPt>0?`<div class="crd" style="border-left:4px solid var(--yw)"><div style="font-weight:700;margin-bottom:4px">⏳ Pending Requests</div><div style="font-size:13px;color:var(--mu)">${[pendLv?pendLv+' leave':'',pendAdv?pendAdv+' advance':'',pendPt?pendPt+' points':''].filter(Boolean).join(' · ')}</div></div>`:''}
+    <div class="crd">
+      <div style="font-weight:700;margin-bottom:12px">Quick Actions</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn bp2" onclick="navSt('leave')">📅 My Leaves</button>
+        <button class="btn bp2" onclick="navSt('salary')">💰 My Salary</button>
+        <button class="btn bo" onclick="showLvReqMod()">+ Request Leave</button>
+        <button class="btn bo" onclick="showAdvReqMod()">+ Request Advance</button>
+        <button class="btn bo" style="grid-column:1/-1" onclick="navSt('salary');setTimeout(showPtReqMod,100)">⭐ Request Points</button>
+      </div>
+    </div>
+    <div class="crd">
+      <div style="font-weight:700;margin-bottom:10px">${monName(m,y)} Summary</div>
+      <div class="srw"><span class="sl">Gross Salary</span><span class="sv">${fmtM(effSal)}</span></div>
+      <div class="srw ded"><span class="sl">Leave Deduction</span><span class="sv">− ${fmtM(Math.round(extra*dayRate))}</span></div>
+      ${exPay>0?`<div class="srw grn"><span class="sl">Extra Days Pay (${exDays.length} days)</span><span class="sv">+ ${fmtM(Math.round(exPay))}</span></div>`:''}
+      ${bonusAmt>0?`<div class="srw grn"><span class="sl">Bonus</span><span class="sv">+ ${fmtM(bonusAmt)}</span></div>`:''}
+      <div class="srw ded"><span class="sl">Advances</span><span class="sv">− ${fmtM(totalAdv)}</span></div>
+      <div class="srw tot"><span class="sl">Net Payable</span><span class="sv">${fmtM(Math.round(net))}</span></div>
+    </div>
+  `;
+}
+
+// ── STAFF LEAVES SCREEN ───────────────────────
+function renderStLeave(){
+  const{y,m}=S.stMon; const id=S.userId;
+  const s=gStaff().find(x=>x.id===id); const allowed=s?.paidLeaves??2;
+  const pfx=`${y}-${p2(m)}`;
+  const lvs=gLeaves().filter(l=>l.sid===id&&l.date.startsWith(pfx));
+  const lset=new Set(lvs.map(l=>l.date));
+  const pndReqs=gLvReqs().filter(r=>r.sid===id&&r.date.startsWith(pfx)&&r.status==='pending');
+  const pendSet=new Set(pndReqs.map(r=>r.date));
+  const total=lvs.length; const remaining=Math.max(0,allowed-total);
+  document.getElementById('stLvML').textContent=monName(m,y);
+  document.getElementById('stLvT').textContent=total;document.getElementById('stLvP').textContent=Math.min(total,allowed);document.getElementById('stLvB').textContent=remaining;
+  const days=dim(y,m); const firstDay=new Date(y,m-1,1).getDay(); const td=today();
+  const DN=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let cal=DN.map(d=>`<div class="cdn">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++)cal+=`<div class="cdy emp"></div>`;
+  const sortedLv=[...lset].sort();
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${p2(m)}-${p2(d)}`;
+    const isLv=lset.has(ds); const isPnd=pendSet.has(ds); const isTd=ds===td;
+    const isPd2=isLv&&sortedLv.indexOf(ds)<allowed;
+    cal+=`<div class="cdy${isLv?(isPd2?' lv pd':' lv'):''}${isPnd?' pnd':''}${isTd?' td':''}">${d}</div>`;
+  }
+  document.getElementById('stCal').innerHTML=cal;
+  const allReqs=gLvReqs().filter(r=>r.sid===id).sort((a,b)=>b.date>a.date?1:-1);
+  const ll=document.getElementById('stLvList');
+  ll.innerHTML=allReqs.length?allReqs.map(r=>`<div class="lit"><div><div style="font-size:14px;font-weight:600">${fmtD(r.date)}</div>${r.reason?`<div style="font-size:12px;color:var(--mu)">${r.reason}</div>`:''}</div><span class="bdg ${r.status==='pending'?'bp':r.status==='approved'?'ba':'bl2'}">${r.status}</span></div>`).join(''):`<div style="text-align:center;color:var(--mu);padding:16px;font-size:13px">No leave requests yet</div>`;
+}
+
+function showLvReqMod(){document.getElementById('lrDt').value=today();document.getElementById('lrRs').value='';showM('mLvReq');}
+function submitLvReq(){
+  const date=document.getElementById('lrDt').value; if(!date){toast('Please select a date');return;}
+  const reason=document.getElementById('lrRs').value.trim();
+  const reqs=gLvReqs();
+  if(reqs.find(r=>r.sid===S.userId&&r.date===date&&r.status==='pending')){toast('Already requested for this date');return;}
+  reqs.push({id:uid(),sid:S.userId,date,reason,status:'pending'}); sLvReqs(reqs);
+  hideM('mLvReq'); toast('Leave request submitted!'); renderStLeave(); renderStHome();
+}
+
+// ── STAFF SALARY SCREEN ───────────────────────
+function renderStSal(){
+  const{y,m}=S.stMon; const id=S.userId;
+  const s=gStaff().find(x=>x.id===id); if(!s)return;
+  document.getElementById('stSalML').textContent=monName(m,y);
+  const pfx=monPfx(y,m);
+  const lvs=gLeaves().filter(l=>l.sid===id&&l.date.startsWith(pfx));
+  const exDays=gExtra().filter(e=>e.sid===id&&e.date.startsWith(pfx));
+  const advs=gAdv().filter(a=>a.sid===id&&a.date.startsWith(pfx));
+  const apvAdv=gAdvReqs().filter(a=>a.sid===id&&a.date.startsWith(pfx)&&a.status==='approved');
+  const allowed=s.paidLeaves??2; const totalDays=dim(y,m);
+  const effSal=getEffSalary(id,y,m); const dayRate=effSal/totalDays;
+  const extra=Math.max(0,lvs.length-allowed); const lvDed=extra*dayRate;
+  const exPay=exDays.length*dayRate;
+  const totalAdv=advs.reduce((sum,a)=>sum+(parseFloat(a.amt)||0),0)+apvAdv.reduce((sum,a)=>sum+(parseFloat(a.amt)||0),0);
+  const bonusRec=getBonus(id,y,m); const bonusAmt=parseFloat(bonusRec?.amount)||0;
+  const net=effSal-lvDed+exPay+bonusAmt-totalAdv; const paid=isPaid(id,y,m);
+  // Points
+  const ptBal=getPtBal(id);
+  document.getElementById('stPtsBal').textContent=ptBal;
+  const ptHistory=gPtLedger().filter(l=>l.sid===id).sort((a,b)=>b.date>a.date?1:-1).slice(0,20);
+  document.getElementById('stPtsHistory').innerHTML=ptHistory.length?ptHistory.map(l=>`<div class="lit"><div><div style="font-size:13px;font-weight:600">${l.delta>0?'⭐ +'+l.delta+' pts':'🔄 '+l.delta+' pts'}</div><div style="font-size:11px;color:var(--mu)">${fmtD(l.date)} · ${l.note||l.type}</div></div><span style="font-size:12px;color:${l.delta>0?'var(--gn)':'var(--yw)'}">${l.delta>0?'+':''} ${l.delta}</span></div>`).join(''):`<div style="text-align:center;color:var(--mu);padding:12px;font-size:13px">No points history yet</div>`;
+  document.getElementById('stSalCont').innerHTML=`
+    ${paid?`<div class="pdb"><div class="pdi">✅</div><div><div class="pdt">Salary Paid</div><div style="font-size:12px;color:var(--mu)">Paid on ${fmtD(gPaid().find(p=>p.sid===id&&p.y===y&&p.m===m)?.paidDate)}</div></div></div>`:''}
+    <div class="crd"><div style="font-weight:700;margin-bottom:12px">Salary Breakdown</div>
+      <div class="srw"><span class="sl">Gross Salary (${totalDays} days)</span><span class="sv">${fmtM(effSal)}</span></div>
+      <div class="srw"><span class="sl">Daily Rate</span><span class="sv">${fmtM(Math.round(dayRate))}/day</span></div>
+      <div class="srw grn"><span class="sl">Paid Leaves (${Math.min(lvs.length,allowed)})</span><span class="sv">₹0 deducted</span></div>
+      <div class="srw ded"><span class="sl">Unpaid Leaves (${extra} × ${fmtM(Math.round(dayRate))})</span><span class="sv">− ${fmtM(Math.round(lvDed))}</span></div>
+      ${exDays.length>0?`<div class="srw grn"><span class="sl">Extra Days (${exDays.length} × ${fmtM(Math.round(dayRate))})</span><span class="sv">+ ${fmtM(Math.round(exPay))}</span></div>`:''}
+      ${bonusAmt>0?`<div class="srw grn"><span class="sl">Bonus${bonusRec?.note?' ('+bonusRec.note+')':''}</span><span class="sv">+ ${fmtM(bonusAmt)}</span></div>`:''}
+      <div class="srw ded"><span class="sl">Advances</span><span class="sv">− ${fmtM(totalAdv)}</span></div>
+      <div class="srw tot"><span class="sl">Net Payable (by 10th)</span><span class="sv">${fmtM(Math.round(net))}</span></div>
+    </div>
+  `;
+  const allAdvReqs=gAdvReqs().filter(r=>r.sid===id).sort((a,b)=>b.date>a.date?1:-1);
+  const al=document.getElementById('stAdvList');
+  al.innerHTML=allAdvReqs.length?allAdvReqs.map(r=>`<div class="lit"><div><div style="font-size:14px;font-weight:700">${fmtM(r.amt)}</div><div style="font-size:12px;color:var(--mu)">${fmtD(r.date)}${r.reason?' · '+r.reason:''}</div></div><span class="bdg ${r.status==='pending'?'bp':r.status==='approved'?'ba':'bl2'}">${r.status}</span></div>`).join(''):`<div style="text-align:center;color:var(--mu);padding:12px;font-size:13px">No advance requests yet</div>`;
+}
+
+function showAdvReqMod(){document.getElementById('arAm').value='';document.getElementById('arRs').value='';showM('mAdvReq');}
+function submitAdvReq(){
+  const amt=parseFloat(document.getElementById('arAm').value); if(!amt||amt<=0){toast('Please enter amount');return;}
+  const reason=document.getElementById('arRs').value.trim();
+  const reqs=gAdvReqs(); reqs.push({id:uid(),sid:S.userId,date:today(),amt,reason,status:'pending'}); sAdvReqs(reqs);
+  hideM('mAdvReq'); toast('Advance request submitted!'); renderStSal(); renderStHome();
+}
+
+// ── BONUS MODAL ───────────────────────────────
+function showBonusMod(y,m){
+  const id=S.selStaffId; if(!id)return;
+  const s=gStaff().find(x=>x.id===id);
+  document.getElementById('bnSid').value=id;
+  document.getElementById('bnY').value=y;
+  document.getElementById('bnM').value=m;
+  document.getElementById('soLbl').textContent=`Bonus for ${s?.name||''} · ${monName(m,y)}`;
+  const ex=getBonus(id,y,m);
+  document.getElementById('bnAm').value=ex?ex.amount:'';
+  document.getElementById('bnNt').value=ex?ex.note:'';
+  showM('mBonus');
+}
+function saveBonus(){
+  const sid=document.getElementById('bnSid').value;
+  const y=parseInt(document.getElementById('bnY').value);
+  const m=parseInt(document.getElementById('bnM').value);
+  const amt=parseFloat(document.getElementById('bnAm').value)||0;
+  const note=document.getElementById('bnNt').value.trim();
+  const bonuses=gBonuses().filter(b=>!(b.sid===sid&&b.y===y&&b.m===m));
+  if(amt>0)bonuses.push({id:uid(),sid,y,m,amount:amt,note});
+  sBonuses(bonuses); hideM('mBonus'); toast('Bonus saved!');
+  if(S.view==='staffDetail')renderStaffDetail();
+}
+
+// ── SALARY OVERRIDE MODAL ─────────────────────
+function showSalOvMod(y,m){
+  const id=S.selStaffId; if(!id)return;
+  document.getElementById('soSid').value=id;
+  document.getElementById('soY').value=y;
+  document.getElementById('soM').value=m;
+  const ex=gSalOv().find(o=>o.sid===id&&o.y===y&&o.m===m);
+  const s=gStaff().find(x=>x.id===id);
+  document.getElementById('soAm').value=ex?ex.salary:(s?.salary||'');
+  document.getElementById('soLbl2').textContent=`${s?.name||''} · ${monName(m,y)}`;
+  showM('mSalOv');
+}
+function saveSalOv(){
+  const sid=document.getElementById('soSid').value;
+  const y=parseInt(document.getElementById('soY').value);
+  const m=parseInt(document.getElementById('soM').value);
+  const salary=parseFloat(document.getElementById('soAm').value);
+  if(!salary||salary<=0){toast('Enter valid salary');return;}
+  const ovs=gSalOv().filter(o=>!(o.sid===sid&&o.y===y&&o.m===m));
+  ovs.push({id:uid(),sid,y,m,salary}); sSalOv(ovs);
+  hideM('mSalOv'); toast('Salary override saved!');
+  if(S.view==='staffDetail')renderStaffDetail();
+}
+
+// ── EDIT ADVANCE MODAL ────────────────────────
+function showEditAdv(advId){
+  const adv=gAdv().find(a=>a.id===advId); if(!adv)return;
+  document.getElementById('eaId').value=advId;
+  document.getElementById('eaDt').value=adv.date;
+  document.getElementById('eaAm').value=adv.amt;
+  document.getElementById('eaNt').value=adv.note||'';
+  showM('mEditAdv');
+}
+function doEditAdv(){
+  const id=document.getElementById('eaId').value;
+  const date=document.getElementById('eaDt').value;
+  const amt=parseFloat(document.getElementById('eaAm').value);
+  const note=document.getElementById('eaNt').value.trim();
+  if(!amt||amt<=0){toast('Enter valid amount');return;}
+  const advs=gAdv(); const a=advs.find(x=>x.id===id); if(!a)return;
+  a.date=date; a.amt=amt; a.note=note; sAdv2(advs);
+  hideM('mEditAdv'); toast('Advance updated!');
+  if(S.view==='staffDetail')renderStaffDetail();
+}
+
+// ── POINTS REQUEST ────────────────────────────
+function showPtReqMod(){
+  document.getElementById('prPt').value='';
+  document.getElementById('prRs').value='';
+  showM('mPtReq');
+}
+function submitPtReq(){
+  const pts=parseInt(document.getElementById('prPt').value);
+  if(!pts||pts<=0||pts%10!==0){toast('Enter points in multiples of 10');return;}
+  const reason=document.getElementById('prRs').value.trim();
+  const reqs=gPtReqs();
+  const hasPending=reqs.some(r=>r.sid===S.userId&&r.status==='pending');
+  if(hasPending){toast('You already have a pending points request');return;}
+  reqs.push({id:uid(),sid:S.userId,date:today(),points:pts,reason,status:'pending'});
+  sPtReqs(reqs); hideM('mPtReq'); toast('Points request submitted!'); renderStSal(); renderStHome();
+}
+
+function chgStM(dir){
+  let{y,m}=S.stMon; m+=dir; if(m>12){m=1;y++;} if(m<1){m=12;y--;} S.stMon={y,m};
+  const active=['sStLeave','sStSalary'].find(id=>document.getElementById(id).classList.contains('on'));
+  if(active==='sStLeave')renderStLeave(); if(active==='sStSalary')renderStSal();
+}
+
+// ── INIT ──────────────────────────────────────
+function initApp(){
+  openDB().then(()=>{
+    initAdmins();
+    S.dMon=nowMon(); S.ovMon=nowMon(); S.stMon=nowMon();
+    selRole('admin');
+    document.getElementById('sLogin').style.display='flex';
+  });
+}
+// Boot via Firestore sync → initApp
+syncFromFirestore();
+    </script>
+</body>
+
+</html>
