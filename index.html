@@ -8,7 +8,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
     <style>
         *,
         *::before,
@@ -1458,6 +1457,32 @@
         </div>
     </div>
 
+    <!-- Create Challenge modal (admin) -->
+    <div class="ovl" id="mChallenge"><div class="sht"><div class="hdl"></div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">🎯 Create Challenge</div>
+      <div style="font-size:13px;color:var(--mu);margin-bottom:16px">Staff see this live with progress bar</div>
+      <input type="hidden" id="chId">
+      <div class="fsc"><label class="flb">Challenge Title *</label><input class="fin" type="text" id="chTitle" placeholder="e.g. Top Performer This Week"></div>
+      <div class="fsc"><label class="flb">Description</label><input class="fin" type="text" id="chDesc" placeholder="e.g. Most points earned wins!"></div>
+      <div class="fsc"><label class="flb">Target Points *</label><input class="fin" type="number" id="chTarget" placeholder="e.g. 50" min="10" step="10"></div>
+      <div class="fsc"><label class="flb">Prize (₹) *</label><input class="fin" type="number" id="chPrize" placeholder="e.g. 500"></div>
+      <div class="fsc"><label class="flb">Deadline *</label><input class="fin" type="date" id="chDeadline"></div>
+      <button class="btn bp2" style="margin-top:8px" onclick="saveChallenge()">🎯 Launch Challenge</button>
+      <button class="btn bo" style="margin-top:8px" onclick="hideM('mChallenge')">Cancel</button>
+    </div></div>
+
+    <!-- Crown Winner modal (admin) -->
+    <div class="ovl" id="mCrownWinner"><div class="sht"><div class="hdl"></div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">🏆 Crown Monthly Winner</div>
+      <div style="font-size:13px;color:var(--mu);margin-bottom:16px" id="cwMonLbl"></div>
+      <div class="fsc"><label class="flb">Select Winner *</label>
+        <select class="fin" id="cwStaff"></select>
+      </div>
+      <div class="fsc"><label class="flb">Note (optional)</label><input class="fin" type="text" id="cwNote" placeholder="e.g. Outstanding performance!"></div>
+      <button class="btn bp2" style="margin-top:8px" onclick="saveCrownWinner()">👑 Crown Winner</button>
+      <button class="btn bo" style="margin-top:8px" onclick="hideM('mCrownWinner')">Cancel</button>
+    </div></div>
+
     <!-- Reset PIN (admin resets anyone's PIN) -->
     <div class="ovl" id="mResetPin">
         <div class="sht">
@@ -1492,28 +1517,48 @@
                 r.onerror = () => fail(r.error);
             });
         }
+        // Compress image to small JPEG for Firestore storage (~8-30KB)
+        function compressImage(dataUrl, maxW, maxH, quality) {
+            return new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => {
+                    const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+                    const w = Math.round(img.width * scale);
+                    const h = Math.round(img.height * scale);
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(c.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => resolve(dataUrl);
+                img.src = dataUrl;
+            });
+        }
         async function dbSet(k, v) {
-            // Save locally in IndexedDB
+            // Save full image locally in IndexedDB
             const d = await openDB();
             await new Promise((ok, f) => {
                 const t = d.transaction('imgs', 'readwrite');
                 t.objectStore('imgs').put(v, k);
                 t.oncomplete = ok; t.onerror = f;
             });
-            // Upload to Firebase Storage so other devices can see it
+            // Compress and save to Firestore via photourls (syncs across devices)
             try {
-                const ref = fbStorage.ref('photos/' + k);
-                await ref.putString(v, 'data_url');
-                const url = await ref.getDownloadURL();
+                const isAad = k.startsWith('sad_');
+                const compressed = await compressImage(v,
+                    isAad ? 600 : 200,
+                    isAad ? 400 : 200,
+                    isAad ? 0.65 : 0.55
+                );
                 const urls = ls.get('photourls', {});
-                urls[k] = url;
-                ls.set('photourls', urls); // syncs to Firestore via ls.set
+                urls[k] = compressed;
+                ls.set('photourls', urls);
             } catch(e) {
-                console.warn('Photo upload to cloud failed:', e);
+                console.warn('Photo cloud sync failed:', e);
             }
         }
         async function dbGet(k) {
-            // Check cloud URL first (works across all devices)
+            // Check Firestore-synced photourls first (works on all devices)
             const urls = ls.get('photourls', {});
             if (urls[k]) return urls[k];
             // Fall back to local IndexedDB
@@ -1547,9 +1592,8 @@
         };
         firebase.initializeApp(firebaseConfig);
         const firestoreDB = firebase.firestore();
-        const fbStorage = firebase.storage();
         const FS_COLLECTION = 'data';
-        const SYNC_KEYS = ['admins', 'staff', 'leaves', 'adv', 'lvreqs', 'advreqs', 'paid', 'extradays', 'bonuses', 'salov', 'ptreqs', 'ptledger', 'photourls'];
+        const SYNC_KEYS = ['admins', 'staff', 'leaves', 'adv', 'lvreqs', 'advreqs', 'paid', 'extradays', 'bonuses', 'salov', 'ptreqs', 'ptledger', 'photourls', 'challenges', 'winners'];
 
         // Write a key to Firestore (fire-and-forget)
         function fsSet(k, v) {
@@ -1628,6 +1672,32 @@
         const sPtLedger = v => ls.set('ptledger', v);
         const gPhotoUrls = () => ls.get('photourls', {});
         const sPhotoUrls = v => ls.set('photourls', v);
+        const gChallenges = () => ls.get('challenges', []);
+        const sChallenges = v => ls.set('challenges', v);
+        const gWinners = () => ls.get('winners', []);
+        const sWinners = v => ls.set('winners', v);
+
+        // ── BADGE & LEADERBOARD HELPERS ───────────────
+        function getBadge(sid) {
+            const earned = gPtLedger().filter(l => l.sid === sid && l.delta > 0).reduce((s, l) => s + l.delta, 0);
+            if (earned >= 1000) return {icon:'🏆', title:'Champion', color:'#f59e0b'};
+            if (earned >= 500)  return {icon:'🔥', title:'Hotshot',  color:'#ef4444'};
+            if (earned >= 200)  return {icon:'🌟', title:'Star',     color:'#8b5cf6'};
+            if (earned >= 50)   return {icon:'⭐', title:'Rookie',   color:'#3b82f6'};
+            return null;
+        }
+        function getMonthLeaderboard(y, m) {
+            const pfx = monPfx(y, m);
+            return gStaff().map(s => {
+                const monthPts = gPtLedger().filter(l => l.sid === s.id && l.delta > 0 && l.date.startsWith(pfx)).reduce((sum, l) => sum + l.delta, 0);
+                const allPts   = gPtLedger().filter(l => l.sid === s.id && l.delta > 0).reduce((sum, l) => sum + l.delta, 0);
+                return {id: s.id, name: s.name, role: s.role, monthPts, allPts, badge: getBadge(s.id)};
+            }).sort((a, b) => b.monthPts - a.monthPts);
+        }
+        function getActiveChallenges() {
+            const td = today();
+            return gChallenges().filter(c => c.status === 'active' && c.deadline >= td);
+        }
 
         // ── INIT ADMINS ───────────────────────────────
         function initAdmins() {
@@ -1988,10 +2058,24 @@
     <div id="adminListInSettings"></div>
     <button class="btn bpu2" style="margin-bottom:12px" onclick="showAdminForm(null)">+ Add Admin</button>
     `:''}
+    <p class="stl">🏆 Competition</p>
+    <div class="crd">
+      <div style="font-weight:700;margin-bottom:12px">Challenges</div>
+      <div id="adminChallengesList"></div>
+      <button class="btn bp2" style="margin-top:8px" onclick="showChallengeModal()">🎯 Create New Challenge</button>
+    </div>
+    <div class="crd">
+      <div style="font-weight:700;margin-bottom:4px">Monthly Winner</div>
+      <div style="font-size:13px;color:var(--mu);margin-bottom:10px">Crown the top performer — shown as a banner on all staff screens</div>
+      <div id="adminWinnersList"></div>
+      <button class="btn bgn" style="margin-top:8px" onclick="showCrownWinnerModal()">👑 Crown This Month's Winner</button>
+    </div>
     <p class="stl">About</p>
-    <div class="crd"><div style="font-size:14px;color:var(--mu)">Restaurant Staff Manager · All data stored locally on your device. Default admin PIN is 1234 (change in your profile).</div></div>
+    <div class="crd"><div style="font-size:14px;color:var(--mu)">Restaurant Staff Manager · Data synced via Firebase. Default admin PIN is 1234 (change in your profile).</div></div>
   `;
   if(isMain) renderAdminListInSettings();
+  renderAdminChallengesList();
+  renderAdminWinnersList();
 }
 
 async function renderAdminListInSettings(){
@@ -2366,6 +2450,134 @@ function rejAdvGlobal(rid){const reqs=gAdvReqs();const r=reqs.find(x=>x.id===rid
 function appPtReq(rid){const reqs=gPtReqs();const req=reqs.find(r=>r.id===rid);if(!req)return;req.status='approved';sPtReqs(reqs);const ledger=gPtLedger();ledger.push({id:uid(),sid:req.sid,date:today(),delta:req.points,type:'earned',note:req.reason||'Approved by admin'});sPtLedger(ledger);autoRedeemPts(req.sid);toast('Points approved!');renderReqs();updateBadge();}
 function rejPtReq(rid){const reqs=gPtReqs();const r=reqs.find(x=>x.id===rid);if(!r)return;r.status='rejected';sPtReqs(reqs);toast('Rejected');renderReqs();updateBadge();}
 
+// ── COMPETITION ───────────────────────────────
+const MEDAL=['🥇','🥈','🥉'];
+
+function renderLeaderboardHtml(y,m,myId){
+  const board=getMonthLeaderboard(y,m);
+  if(!board.length||board.every(b=>b.monthPts===0)) return '';
+  const winner=gWinners().find(w=>w.y===y&&w.m===m);
+  const winnerBanner=winner?`<div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center">
+    <div style="font-size:22px">👑</div>
+    <div style="color:#fff;font-weight:800;font-size:15px">${gStaff().find(s=>s.id===winner.sid)?.name||'Champion'}</div>
+    <div style="color:rgba(255,255,255,.85);font-size:12px">${monName(m,y)} Champion${winner.note?' · '+winner.note:''}</div>
+  </div>`:'';
+  const myRank=board.findIndex(b=>b.id===myId);
+  const rows=board.slice(0,10).map((b,i)=>{
+    const isMe=b.id===myId;
+    const badge=b.badge?`<span style="font-size:11px;background:${b.badge.color}22;color:${b.badge.color};padding:2px 6px;border-radius:8px;font-weight:700">${b.badge.icon} ${b.badge.title}</span>`:'';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);${isMe?'background:var(--pl);margin:0 -12px;padding:8px 12px;border-radius:8px':''}">
+      <div style="font-size:${i<3?'20px':'14px'};font-weight:900;min-width:28px;text-align:center">${i<3?MEDAL[i]:'#'+(i+1)}</div>
+      <div style="flex:1"><div style="font-weight:${isMe?800:600};font-size:14px">${b.name}${isMe?' (You)':''}</div>${badge}</div>
+      <div style="text-align:right"><div style="font-weight:900;font-size:16px;color:var(--yw)">⭐ ${b.monthPts}</div><div style="font-size:10px;color:var(--mu)">this month</div></div>
+    </div>`;
+  }).join('');
+  return`<div class="crd"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-weight:800;font-size:16px">🏆 Leaderboard</div>
+    <div style="font-size:12px;color:var(--mu)">${monName(m,y)}</div>
+  </div>${winnerBanner}${rows}${myRank>=10?`<div style="text-align:center;padding:8px;color:var(--mu);font-size:13px">Your rank: #${myRank+1}</div>`:''}</div>`;
+}
+
+function renderChallengesHtml(myId){
+  const challenges=getActiveChallenges();
+  if(!challenges.length) return '';
+  const myPts=getPtBal(myId);
+  const cards=challenges.map(c=>{
+    const pct=Math.min(100,Math.round((myPts/c.targetPts)*100));
+    const daysLeft=Math.ceil((new Date(c.deadline)-new Date())/86400000);
+    return`<div style="border:2px solid var(--p);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div style="font-weight:800;font-size:15px">🎯 ${c.title}</div>
+        <span style="background:#fef3c7;color:#92400e;font-size:11px;padding:2px 8px;border-radius:8px;font-weight:700">${daysLeft}d left</span>
+      </div>
+      ${c.description?`<div style="font-size:12px;color:var(--mu);margin-bottom:8px">${c.description}</div>`:''}
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mu);margin-bottom:6px">
+        <span>Your points: ⭐ ${myPts}</span><span>Target: ⭐ ${c.targetPts}</span>
+      </div>
+      <div style="background:var(--bd);border-radius:99px;height:8px;overflow:hidden;margin-bottom:8px">
+        <div style="background:linear-gradient(90deg,var(--p),var(--yw));height:100%;width:${pct}%;border-radius:99px;transition:width .3s"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--gn)">🏆 Prize: ₹${c.prize}${pct>=100?' — You qualify! 🎉':''}</div>
+    </div>`;
+  }).join('');
+  return`<div class="crd"><div style="font-weight:800;font-size:16px;margin-bottom:12px">🎯 Active Challenges</div>${cards}</div>`;
+}
+
+function showChallengeModal(cid){
+  const c=cid?gChallenges().find(x=>x.id===cid):null;
+  document.getElementById('chId').value=cid||'';
+  document.getElementById('chTitle').value=c?.title||'';
+  document.getElementById('chDesc').value=c?.description||'';
+  document.getElementById('chTarget').value=c?.targetPts||'';
+  document.getElementById('chPrize').value=c?.prize||'';
+  document.getElementById('chDeadline').value=c?.deadline||'';
+  showM('mChallenge');
+}
+function saveChallenge(){
+  const title=document.getElementById('chTitle').value.trim();
+  const target=parseInt(document.getElementById('chTarget').value);
+  const prize=parseFloat(document.getElementById('chPrize').value);
+  const deadline=document.getElementById('chDeadline').value;
+  if(!title||!target||!prize||!deadline){toast('Fill all required fields');return;}
+  const challenges=gChallenges();
+  const existId=document.getElementById('chId').value;
+  if(existId){
+    const c=challenges.find(x=>x.id===existId);
+    if(c){c.title=title;c.description=document.getElementById('chDesc').value.trim();c.targetPts=target;c.prize=prize;c.deadline=deadline;}
+  } else {
+    challenges.push({id:uid(),title,description:document.getElementById('chDesc').value.trim(),targetPts:target,prize,deadline,status:'active',createdAt:today()});
+  }
+  sChallenges(challenges); hideM('mChallenge'); toast('Challenge launched! 🎯');
+  renderAdminChallengesList();
+}
+function endChallenge(cid){
+  const challenges=gChallenges();
+  const c=challenges.find(x=>x.id===cid); if(!c)return;
+  c.status='ended'; sChallenges(challenges); toast('Challenge ended');
+  renderAdminChallengesList();
+}
+function renderAdminChallengesList(){
+  const el=document.getElementById('adminChallengesList'); if(!el)return;
+  const all=gChallenges().sort((a,b)=>b.createdAt>a.createdAt?1:-1);
+  if(!all.length){el.innerHTML=`<div style="color:var(--mu);font-size:13px;margin-bottom:8px">No challenges yet</div>`;return;}
+  el.innerHTML=all.slice(0,5).map(c=>`<div class="lit"><div>
+    <div style="font-weight:700;font-size:14px">${c.status==='ended'?'[Ended] ':''}${c.title}</div>
+    <div style="font-size:12px;color:var(--mu)">Target ⭐${c.targetPts} · Prize ₹${c.prize} · ${c.deadline}</div>
+  </div><div style="display:flex;gap:4px">
+    ${c.status==='active'?`<button class="btn bo bxs" onclick="showChallengeModal('${c.id}')">✏️</button><button class="btn brd bxs" onclick="endChallenge('${c.id}')">End</button>`:''}
+  </div></div>`).join('');
+}
+function showCrownWinnerModal(){
+  const{y,m}=S.ovMon||nowMon();
+  document.getElementById('cwMonLbl').textContent=`Crown winner for ${monName(m,y)}`;
+  const board=getMonthLeaderboard(y,m);
+  const sel=document.getElementById('cwStaff');
+  sel.innerHTML=board.map(b=>`<option value="${b.id}">${b.name} (⭐${b.monthPts} pts)</option>`).join('');
+  document.getElementById('cwNote').value='';
+  showM('mCrownWinner');
+}
+function saveCrownWinner(){
+  const{y,m}=S.ovMon||nowMon();
+  const sid=document.getElementById('cwStaff').value;
+  const note=document.getElementById('cwNote').value.trim();
+  if(!sid){toast('Select a winner');return;}
+  const winners=gWinners().filter(w=>!(w.y===y&&w.m===m));
+  const pts=getMonthLeaderboard(y,m).find(b=>b.id===sid)?.monthPts||0;
+  winners.push({id:uid(),sid,y,m,pts,note,crownedAt:today()});
+  sWinners(winners); hideM('mCrownWinner');
+  toast(`👑 Winner crowned!`);
+  renderAdminWinnersList();
+}
+function renderAdminWinnersList(){
+  const el=document.getElementById('adminWinnersList'); if(!el)return;
+  const all=gWinners().sort((a,b)=>b.y!==a.y?b.y-a.y:b.m-a.m).slice(0,6);
+  if(!all.length){el.innerHTML=`<div style="color:var(--mu);font-size:13px;margin-bottom:8px">No winners crowned yet</div>`;return;}
+  el.innerHTML=all.map(w=>`<div class="lit"><div>
+    <div style="font-weight:700;font-size:14px">👑 ${gStaff().find(s=>s.id===w.sid)?.name||'?'}</div>
+    <div style="font-size:12px;color:var(--mu)">${monName(w.m,w.y)} · ⭐${w.pts} pts${w.note?' · '+w.note:''}</div>
+  </div></div>`).join('');
+}
+
 // ── SALARY OVERVIEW ───────────────────────────
 function renderOv(){
   const{y,m}=S.ovMon; document.getElementById('ovML').textContent=monName(m,y);
@@ -2470,6 +2682,8 @@ async function renderStHome(){
       <div class="srw ded"><span class="sl">Advances</span><span class="sv">− ${fmtM(totalAdv)}</span></div>
       <div class="srw tot"><span class="sl">Net Payable</span><span class="sv">${fmtM(Math.round(net))}</span></div>
     </div>
+    ${renderChallengesHtml(id)}
+    ${renderLeaderboardHtml(y,m,id)}
   `;
 }
 
