@@ -1520,7 +1520,7 @@
         }
 
         // ── FIREBASE CONFIG ──────────────────────────
-        // 🔧 REPLACE these values with your own Firebase project config:
+        // REPLACE these values with your own Firebase project config:
         const firebaseConfig = {
             apiKey: "AIzaSyDEZUKrTtBXDO1gV--5GFhXGTNBP9h70YQ",
             authDomain: "staff-manager-e0e60.firebaseapp.com",
@@ -1544,6 +1544,14 @@
         // Load all synced keys from Firestore into localStorage, then boot the app
         async function syncFromFirestore() {
             const el = document.getElementById('fbLoadMsg');
+            const loader = document.getElementById('fbLoad');
+            function bootApp() { if (loader) loader.style.display = 'none'; initApp(); }
+            // 10-second timeout so the app always starts even if Firestore is unreachable
+            const timeoutId = setTimeout(() => {
+                console.warn('Firestore timeout — starting with local data');
+                if (el) el.textContent = 'Starting in offline mode…';
+                bootApp();
+            }, 10000);
             try {
                 await Promise.all(SYNC_KEYS.map(async k => {
                     const doc = await firestoreDB.collection(FS_COLLECTION).doc(k).get();
@@ -1551,12 +1559,14 @@
                         localStorage.setItem(k, JSON.stringify(doc.data().value));
                     }
                 }));
+                clearTimeout(timeoutId);
+                bootApp();
             } catch (e) {
-                console.warn('Firestore load failed, using local data:', e);
-                el.textContent = 'Offline mode — using local data';
+                clearTimeout(timeoutId);
+                console.warn('Firestore load failed:', e.code || e.message);
+                if (el) el.textContent = 'DB error: ' + (e.code || e.message);
+                setTimeout(bootApp, 1500); // show error briefly then continue
             }
-            document.getElementById('fbLoad').style.display = 'none';
-            initApp();
         }
 
         // ── STORAGE ──────────────────────────────────
@@ -1691,7 +1701,7 @@
 
         function getEffSalary(sid, y, m) {
             const ov = gSalOv().find(o => o.sid === sid && o.y === y && o.m === m);
-            return ov ? ov.salary : (gStaff().find(s => s.id === sid) ? .salary || 0);
+            return ov ? ov.salary : (gStaff().find(s => s.id === sid)?.salary || 0);
         }
 
         function getPtBal(sid) {
