@@ -19,8 +19,8 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f2f5;
-            color: #1a1a2e;
+            background: #F2F3F7;
+            color: var(--t);
             max-width: 430px;
             margin: 0 auto;
             min-height: 100vh;
@@ -29,16 +29,18 @@
         
          :root {
             --p: #E8500A;
-            --pl: #FFF0E8;
-            --t: #1a1a2e;
-            --mu: #6b7280;
-            --bd: #e5e7eb;
-            --gn: #10b981;
-            --rd: #ef4444;
-            --yw: #f59e0b;
-            --bl: #3b82f6;
+            --pd: #C4400A;
+            --pl: #FFF3EE;
+            --t: #0F172A;
+            --mu: #64748B;
+            --bd: #E8EAF0;
+            --gn: #059669;
+            --rd: #DC2626;
+            --yw: #D97706;
+            --bl: #2563EB;
             --nh: 60px;
-            --bh: 64px
+            --bh: 68px;
+            --sd: 0 1px 3px rgba(0,0,0,0.05),0 4px 16px rgba(0,0,0,0.07)
         }
         /* HEADER */
         
@@ -50,12 +52,12 @@
             width: 100%;
             max-width: 430px;
             height: var(--nh);
-            background: var(--p);
+            background: linear-gradient(135deg, #E8500A 0%, #C4400A 100%);
             display: flex;
             align-items: center;
             padding: 0 16px;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(232, 80, 10, .3)
+            box-shadow: 0 4px 20px rgba(232,80,10,.35)
         }
         
         .hbk {
@@ -95,21 +97,23 @@
             width: 100%;
             max-width: 430px;
             height: var(--bh);
-            background: #fff;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
-            border-top: 1px solid var(--bd);
+            border-top: 1px solid rgba(0,0,0,0.06);
             z-index: 100;
-            box-shadow: 0 -2px 12px rgba(0, 0, 0, .08)
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.08)
         }
-        
+
         .nit {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 3px;
+            gap: 2px;
             cursor: pointer;
             background: none;
             border: none;
@@ -118,13 +122,26 @@
             font-weight: 600;
             padding: 8px;
             position: relative;
-            font-family: inherit
+            font-family: inherit;
+            transition: color .15s
         }
-        
+
         .nit.on {
             color: var(--p)
         }
-        
+
+        .nit.on::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 3px;
+            background: var(--p);
+            border-radius: 0 0 3px 3px
+        }
+
         .nic {
             font-size: 22px
         }
@@ -167,10 +184,11 @@
         
         .crd {
             background: #fff;
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 20px;
+            padding: 18px;
             margin-bottom: 12px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+            box-shadow: var(--sd);
+            border: 1px solid rgba(0,0,0,0.04)
         }
         /* STAFF/ADMIN CARD */
         
@@ -296,20 +314,22 @@
         
         .fin {
             width: 100%;
-            padding: 12px 14px;
+            padding: 13px 16px;
             border: 1.5px solid var(--bd);
             border-radius: 12px;
             font-size: 15px;
             color: var(--t);
-            background: #fff;
+            background: #FAFBFC;
             outline: none;
             -webkit-appearance: none;
             font-family: inherit;
-            transition: border-color .2s
+            transition: border-color .2s, background .2s, box-shadow .2s
         }
-        
+
         .fin:focus {
-            border-color: var(--p)
+            border-color: var(--p);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(232,80,10,.1)
         }
         
         .frw {
@@ -378,61 +398,70 @@
         .btn {
             display: block;
             width: 100%;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 14px;
             border: none;
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             text-align: center;
             font-family: inherit;
-            transition: transform .1s
+            transition: transform .15s, box-shadow .15s;
+            letter-spacing: .1px
         }
-        
+
         .btn:active {
-            transform: scale(.98)
+            transform: scale(.97)
         }
-        
+
         .bp2 {
-            background: var(--p);
-            color: #fff
+            background: linear-gradient(135deg, #E8500A, #C4400A);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(232,80,10,.35)
         }
-        
+
+        .bp2:active {
+            box-shadow: 0 2px 8px rgba(232,80,10,.25)
+        }
+
         .bo {
             background: transparent;
             color: var(--p);
             border: 1.5px solid var(--p)
         }
-        
+
         .brd {
-            background: var(--rd);
-            color: #fff
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(220,38,38,.25)
         }
-        
+
         .bgn {
-            background: var(--gn);
-            color: #fff
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(5,150,105,.25)
         }
-        
+
         .bpu2 {
-            background: #7c3aed;
-            color: #fff
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(124,58,237,.25)
         }
-        
+
         .bsm {
             display: inline-block;
             width: auto;
-            padding: 7px 14px;
+            padding: 8px 16px;
             font-size: 13px;
-            border-radius: 8px
+            border-radius: 10px
         }
-        
+
         .bxs {
             display: inline-block;
             width: auto;
             padding: 5px 10px;
             font-size: 12px;
-            border-radius: 6px
+            border-radius: 8px
         }
         /* TABS */
         
@@ -716,41 +745,43 @@
         .ovl {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, .5);
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             z-index: 200;
             display: flex;
             align-items: flex-end;
             opacity: 0;
             pointer-events: none;
-            transition: opacity .3s
+            transition: opacity .25s
         }
-        
+
         .ovl.on {
             opacity: 1;
             pointer-events: all
         }
-        
+
         .sht {
             background: #fff;
             width: 100%;
-            border-radius: 24px 24px 0 0;
-            padding: 20px;
-            max-height: 85vh;
+            border-radius: 28px 28px 0 0;
+            padding: 8px 20px 36px;
+            max-height: 90vh;
             overflow-y: auto;
             transform: translateY(100%);
-            transition: transform .3s
+            transition: transform .3s cubic-bezier(.4,0,.2,1)
         }
-        
+
         .ovl.on .sht {
             transform: translateY(0)
         }
-        
+
         .hdl {
-            width: 36px;
+            width: 40px;
             height: 4px;
-            background: var(--bd);
+            background: #E0E0E5;
             border-radius: 2px;
-            margin: 0 auto 16px
+            margin: 8px auto 20px
         }
         /* EMPTY */
         
@@ -815,125 +846,195 @@
             margin-bottom: 10px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
         }
-        /* LOGIN */
-        
+        /* LOGIN — PREMIUM */
+
         .lgn {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 24px;
-            background: linear-gradient(160deg, #fff5f0 0%, #fff 60%)
+            background: #F2F3F7
         }
-        
+
+        .lgn-top {
+            background: linear-gradient(150deg, #E8500A 0%, #C4400A 60%, #A33509 100%);
+            padding: 56px 32px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .lgn-top::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 180px;
+            height: 180px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 50%
+        }
+
+        .lgn-top::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -20px;
+            width: 140px;
+            height: 140px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%
+        }
+
         .lgico {
-            font-size: 60px;
-            margin-bottom: 8px
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
+            position: relative;
+            z-index: 1
         }
-        
+
         .lgtl {
-            font-size: 26px;
+            font-size: 20px;
             font-weight: 900;
-            color: var(--p);
-            margin-bottom: 4px
+            color: #fff;
+            margin-bottom: 4px;
+            letter-spacing: -.3px;
+            position: relative;
+            z-index: 1
         }
-        
+
         .lgsu {
             font-size: 14px;
-            color: var(--mu);
-            margin-bottom: 32px
+            color: rgba(255,255,255,.75);
+            position: relative;
+            z-index: 1
         }
-        
+
+        .lgn-body {
+            background: #F2F3F7;
+            border-radius: 28px 28px 0 0;
+            margin-top: -20px;
+            padding: 28px 20px 36px;
+            flex: 1;
+            position: relative;
+            z-index: 2
+        }
+
+        .lgn-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--sd);
+            border: 1px solid rgba(0,0,0,0.04);
+            margin-bottom: 14px
+        }
+
+        .lgn-sec-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--mu);
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 12px
+        }
+
         .rsel {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
-            margin-bottom: 24px
+            gap: 10px;
+            width: 100%
         }
-        
+
         .rbt {
             border: 2px solid var(--bd);
-            border-radius: 16px;
-            padding: 20px 10px;
+            border-radius: 14px;
+            padding: 16px 10px;
             text-align: center;
             cursor: pointer;
-            background: #fff;
+            background: #FAFBFC;
             font-family: inherit;
             transition: all .2s
         }
-        
+
         .rbt.on {
             border-color: var(--p);
-            background: var(--pl)
+            background: var(--pl);
+            box-shadow: 0 0 0 3px rgba(232,80,10,.1)
         }
-        
+
         .rbt .ric {
-            font-size: 32px;
-            margin-bottom: 6px
+            font-size: 28px;
+            margin-bottom: 5px
         }
-        
+
         .rbt .rnm {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: var(--t)
+            color: var(--mu)
         }
-        
+
         .rbt.on .rnm {
             color: var(--p)
         }
-        
+
         .pin-wrap {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin: 16px 0
+            margin: 14px 0
         }
-        
+
         .pin-dot {
-            width: 48px;
-            height: 56px;
+            width: 52px;
+            height: 58px;
             border: 2px solid var(--bd);
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: 800;
-            background: #fff;
-            transition: border-color .2s
+            font-size: 26px;
+            font-weight: 900;
+            background: #FAFBFC;
+            transition: all .2s
         }
-        
+
         .pin-dot.fl {
             border-color: var(--p);
-            background: var(--pl)
+            background: var(--pl);
+            box-shadow: 0 0 0 3px rgba(232,80,10,.1)
         }
-        
+
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             width: 100%;
-            max-width: 280px;
+            max-width: 290px;
             margin: 0 auto
         }
-        
+
         .npb {
-            padding: 16px;
+            padding: 17px;
             border-radius: 14px;
             border: none;
             background: #fff;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--t);
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
-            font-family: inherit
+            box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.06);
+            font-family: inherit;
+            transition: transform .1s, background .1s
         }
-        
+
         .npb:active {
-            background: var(--pl)
+            background: var(--pl);
+            transform: scale(.94)
+        }
+
+        .npb.emp {
+            background: transparent;
+            box-shadow: none
         }
         
         .npb.emp {
@@ -1031,41 +1132,47 @@
     <!-- ═══ LOGIN ═══ -->
     <div id="sLogin" style="display:flex;flex-direction:column">
         <div class="lgn">
-            <div class="lgico">🍽️</div>
-            <div class="lgtl">Staff Manager</div>
-            <div class="lgsu">Restaurant Management App</div>
-            <div style="width:100%;font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;text-align:center">Who are you?</div>
-            <div class="rsel">
-                <div class="rbt on" id="rAdmin" onclick="selRole('admin')">
-                    <div class="ric">👨‍💼</div>
-                    <div class="rnm">Admin</div>
-                </div>
-                <div class="rbt" id="rStaff" onclick="selRole('staff')">
-                    <div class="ric">👷</div>
-                    <div class="rnm">Staff</div>
-                </div>
+            <div class="lgn-top">
+                <span class="lgico">🍽️</span>
+                <div class="lgtl">CRACK'D CAFE - FAMILY RESTAURANT</div>
+                <div class="lgsu">Branch: SARJAPURA, BANGALORE</div>
             </div>
-            <div style="width:100%;margin-bottom:4px">
-                <label class="flb" id="selLabel">Select Admin</label>
-                <select class="usel" id="userSel" onchange="onUserSel()">
-        <option value="">-- Choose --</option>
-      </select>
-            </div>
-            <div style="width:100%;text-align:center">
-                <div class="pin-lbl" id="pinLbl">Enter your PIN</div>
-                <div class="pin-wrap" id="pinDots">
-                    <div class="pin-dot" id="pd0"></div>
-                    <div class="pin-dot" id="pd1"></div>
-                    <div class="pin-dot" id="pd2"></div>
-                    <div class="pin-dot" id="pd3"></div>
+            <div class="lgn-body">
+                <div class="lgn-card">
+                    <div class="lgn-sec-lbl">Who are you?</div>
+                    <div class="rsel">
+                        <div class="rbt" id="rAdmin" onclick="selRole('admin')">
+                            <div class="ric">👨‍💼</div>
+                            <div class="rnm">Admin</div>
+                        </div>
+                        <div class="rbt on" id="rStaff" onclick="selRole('staff')">
+                            <div class="ric">👷</div>
+                            <div class="rnm">Staff</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="pin-err" id="pinErr"></div>
-            </div>
-            <div class="numpad">
-                <button class="npb" onclick="pinKey('1')">1</button><button class="npb" onclick="pinKey('2')">2</button><button class="npb" onclick="pinKey('3')">3</button>
-                <button class="npb" onclick="pinKey('4')">4</button><button class="npb" onclick="pinKey('5')">5</button><button class="npb" onclick="pinKey('6')">6</button>
-                <button class="npb" onclick="pinKey('7')">7</button><button class="npb" onclick="pinKey('8')">8</button><button class="npb" onclick="pinKey('9')">9</button>
-                <button class="npb emp"></button><button class="npb" onclick="pinKey('0')">0</button><button class="npb" onclick="pinDel()">⌫</button>
+                <div class="lgn-card">
+                    <div class="lgn-sec-lbl" id="selLabel">Select Your Name</div>
+                    <select class="fin" id="userSel" onchange="onUserSel()">
+                        <option value="">— Choose —</option>
+                    </select>
+                </div>
+                <div class="lgn-card" style="text-align:center">
+                    <div class="lgn-sec-lbl" id="pinLbl">Enter Your PIN</div>
+                    <div class="pin-wrap" id="pinDots">
+                        <div class="pin-dot" id="pd0"></div>
+                        <div class="pin-dot" id="pd1"></div>
+                        <div class="pin-dot" id="pd2"></div>
+                        <div class="pin-dot" id="pd3"></div>
+                    </div>
+                    <div class="pin-err" id="pinErr"></div>
+                    <div class="numpad" style="margin-top:8px">
+                        <button class="npb" onclick="pinKey('1')">1</button><button class="npb" onclick="pinKey('2')">2</button><button class="npb" onclick="pinKey('3')">3</button>
+                        <button class="npb" onclick="pinKey('4')">4</button><button class="npb" onclick="pinKey('5')">5</button><button class="npb" onclick="pinKey('6')">6</button>
+                        <button class="npb" onclick="pinKey('7')">7</button><button class="npb" onclick="pinKey('8')">8</button><button class="npb" onclick="pinKey('9')">9</button>
+                        <button class="npb emp"></button><button class="npb" onclick="pinKey('0')">0</button><button class="npb" onclick="pinDel()">⌫</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1861,8 +1968,23 @@
 
         // ── LOGIN ─────────────────────────────────────
         let pinBuf = '',
-            loginRole = 'admin',
+            loginRole = 'staff',
             loginUserId = null;
+
+        function saveLoginPref(role, userId) {
+            try { localStorage.setItem('_loginPref', JSON.stringify({role, userId})); } catch(e){}
+        }
+        function restoreLoginPref() {
+            try {
+                const pref = JSON.parse(localStorage.getItem('_loginPref') || 'null');
+                if (!pref) return;
+                selRole(pref.role);
+                if (pref.userId) {
+                    const sel = document.getElementById('userSel');
+                    if (sel) { sel.value = pref.userId; onUserSel(); }
+                }
+            } catch(e) {}
+        }
 
         function selRole(r) {
             loginRole = r;
@@ -1938,6 +2060,7 @@
                     S.role = 'admin';
                     S.userId = admin.id;
                     S.isMain = admin.isMain;
+                    saveLoginPref('admin', admin.id);
                     enterApp();
                 } else {
                     err.textContent = 'Wrong PIN. Try again.';
@@ -1954,6 +2077,7 @@
                 if (String(staff.pin) === pinBuf) {
                     S.role = 'staff';
                     S.userId = staff.id;
+                    saveLoginPref('staff', staff.id);
                     enterApp();
                 } else {
                     err.textContent = 'Wrong PIN. Try again.';
@@ -2872,8 +2996,9 @@ function initApp(){
   openDB().then(()=>{
     initAdmins();
     S.dMon=nowMon(); S.ovMon=nowMon(); S.stMon=nowMon();
-    selRole('admin');
+    selRole('staff');
     document.getElementById('sLogin').style.display='flex';
+    restoreLoginPref();
   });
 }
 // Boot via Firestore sync → initApp
