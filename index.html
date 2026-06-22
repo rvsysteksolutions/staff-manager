@@ -8,6 +8,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         *,
         *::before,
@@ -16,31 +18,34 @@
             margin: 0;
             padding: 0
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #F2F3F7;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0C0C16;
             color: var(--t);
             max-width: 430px;
             margin: 0 auto;
             min-height: 100vh;
             overflow-x: hidden
         }
-        
-         :root {
-            --p: #E8500A;
-            --pd: #C4400A;
-            --pl: #FFF3EE;
-            --t: #0F172A;
-            --mu: #64748B;
-            --bd: #E8EAF0;
-            --gn: #059669;
-            --rd: #DC2626;
-            --yw: #D97706;
-            --bl: #2563EB;
+
+        :root {
+            --p: #FF6B2B;
+            --pd: #E8500A;
+            --pl: rgba(255,107,43,0.14);
+            --t: #EEEEF7;
+            --mu: #A8A8C8;
+            --bd: rgba(255,255,255,0.08);
+            --gn: #0FD98E;
+            --rd: #FF4D4D;
+            --yw: #FFB347;
+            --bl: #4D9FFF;
             --nh: 60px;
-            --bh: 68px;
-            --sd: 0 1px 3px rgba(0,0,0,0.05),0 4px 16px rgba(0,0,0,0.07)
+            --bh: 70px;
+            --sd: 0 4px 24px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+            --s1: #13131F;
+            --s2: #1A1A2C;
+            --s3: #21213A
         }
         /* HEADER */
         
@@ -52,41 +57,50 @@
             width: 100%;
             max-width: 430px;
             height: var(--nh);
-            background: linear-gradient(135deg, #E8500A 0%, #C4400A 100%);
+            background: rgba(12,12,22,0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             display: flex;
             align-items: center;
             padding: 0 16px;
             z-index: 100;
-            box-shadow: 0 4px 20px rgba(232,80,10,.35)
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 4px 32px rgba(0,0,0,0.5)
         }
-        
+
         .hbk {
             background: none;
             border: none;
-            color: #fff;
-            font-size: 24px;
+            color: var(--t);
+            font-size: 22px;
             cursor: pointer;
             padding: 4px 10px 4px 0;
-            line-height: 1
+            line-height: 1;
+            opacity: .8
         }
-        
+
         .htl {
-            color: #fff;
-            font-size: 18px;
-            font-weight: 700;
-            flex: 1
+            color: var(--t);
+            font-size: 17px;
+            font-weight: 800;
+            flex: 1;
+            letter-spacing: -.2px
         }
-        
+
         .hbt {
-            background: none;
-            border: 1px solid rgba(255, 255, 255, .5);
-            color: #fff;
+            background: rgba(255,107,43,0.15);
+            border: 1px solid rgba(255,107,43,0.4);
+            color: var(--p);
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            padding: 7px 12px;
-            border-radius: 8px
+            padding: 7px 13px;
+            border-radius: 10px;
+            font-family: inherit;
+            transition: all .15s
         }
+
+        .hbt:active { background: rgba(255,107,43,0.25) }
         /* BOTTOM NAV */
         
         .bnv {
@@ -97,14 +111,14 @@
             width: 100%;
             max-width: 430px;
             height: var(--bh);
-            background: rgba(255,255,255,0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(13,13,22,0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             display: flex;
             align-items: center;
-            border-top: 1px solid rgba(0,0,0,0.06);
+            border-top: 1px solid rgba(255,255,255,0.07);
             z-index: 100;
-            box-shadow: 0 -4px 24px rgba(0,0,0,0.08)
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.5)
         }
 
         .nit {
@@ -113,38 +127,40 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: 3px;
             cursor: pointer;
             background: none;
             border: none;
             color: var(--mu);
-            font-size: 10px;
-            font-weight: 600;
-            padding: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 8px 4px;
             position: relative;
             font-family: inherit;
-            transition: color .15s
+            transition: color .2s;
+            letter-spacing: .2px
         }
 
-        .nit.on {
-            color: var(--p)
+        .nit.on { color: var(--p) }
+
+        .nit.on .nic {
+            filter: drop-shadow(0 0 8px rgba(255,107,43,0.6))
         }
 
         .nit.on::after {
             content: '';
             position: absolute;
-            top: 0;
+            bottom: 6px;
             left: 50%;
             transform: translateX(-50%);
-            width: 28px;
-            height: 3px;
+            width: 4px;
+            height: 4px;
             background: var(--p);
-            border-radius: 0 0 3px 3px
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--p)
         }
 
-        .nic {
-            font-size: 22px
-        }
+        .nic { font-size: 21px }
         
         .nbdg {
             position: absolute;
@@ -152,10 +168,10 @@
             right: calc(50% - 18px);
             background: var(--rd);
             color: #fff;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
-            min-width: 16px;
-            height: 16px;
+            min-width: 17px;
+            height: 17px;
             border-radius: 8px;
             display: none;
             align-items: center;
@@ -183,12 +199,12 @@
         /* CARD */
         
         .crd {
-            background: #fff;
+            background: var(--s1);
             border-radius: 20px;
             padding: 18px;
             margin-bottom: 12px;
             box-shadow: var(--sd);
-            border: 1px solid rgba(0,0,0,0.04)
+            border: 1px solid rgba(255,255,255,0.07)
         }
         /* STAFF/ADMIN CARD */
         
@@ -226,8 +242,8 @@
         }
         
         .avt.adm {
-            background: #ede9fe;
-            color: #7c3aed
+            background: rgba(124,58,237,0.2);
+            color: #A78BFA
         }
         
         .sif {
@@ -249,65 +265,47 @@
         
         .bdg {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 3px 9px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700
         }
         
-        .ba {
-            background: #d1fae5;
-            color: #065f46
-        }
-        
-        .bl2 {
-            background: #fee2e2;
-            color: #991b1b
-        }
-        
-        .bp {
-            background: #fef3c7;
-            color: #92400e
-        }
-        
-        .bbl {
-            background: #dbeafe;
-            color: #1e40af
-        }
-        
-        .bpu {
-            background: #ede9fe;
-            color: #5b21b6
-        }
+        .ba  { background: rgba(15,217,142,0.15); color: #0FD98E }
+        .bl2 { background: rgba(255,77,77,0.15);  color: #FF7070 }
+        .bp  { background: rgba(255,179,71,0.15); color: #FFB347 }
+        .bbl { background: rgba(77,159,255,0.15); color: #4D9FFF }
+        .bpu { background: rgba(167,139,250,0.15);color: #A78BFA }
         /* SEARCH */
         
         .srb {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+            background: var(--s2);
+            border: 1px solid var(--bd);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 12px
         }
-        
+
         .srb input {
             border: none;
             outline: none;
             font-size: 14px;
             flex: 1;
             background: transparent;
-            color: var(--t)
+            color: var(--t);
+            font-family: inherit
         }
         /* FORM */
         
         .flb {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--mu);
             text-transform: uppercase;
-            letter-spacing: .5px;
+            letter-spacing: .4px;
             margin-bottom: 6px;
             display: block
         }
@@ -315,21 +313,20 @@
         .fin {
             width: 100%;
             padding: 13px 16px;
-            border: 1.5px solid var(--bd);
+            border: 1.5px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             font-size: 15px;
             color: var(--t);
-            background: #FAFBFC;
+            background: var(--s3);
             outline: none;
             -webkit-appearance: none;
             font-family: inherit;
-            transition: border-color .2s, background .2s, box-shadow .2s
+            transition: border-color .2s, box-shadow .2s
         }
 
         .fin:focus {
             border-color: var(--p);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(232,80,10,.1)
+            box-shadow: 0 0 0 3px rgba(255,107,43,0.15)
         }
         
         .frw {
@@ -343,11 +340,11 @@
         }
         
         .stl {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--mu);
             text-transform: uppercase;
-            letter-spacing: .5px;
+            letter-spacing: .4px;
             margin: 16px 0 8px
         }
         
@@ -415,43 +412,41 @@
         }
 
         .bp2 {
-            background: linear-gradient(135deg, #E8500A, #C4400A);
+            background: linear-gradient(135deg, #FF6B2B, #E8500A);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(232,80,10,.35)
+            box-shadow: 0 4px 20px rgba(255,107,43,0.4), 0 1px 4px rgba(0,0,0,.3)
         }
 
-        .bp2:active {
-            box-shadow: 0 2px 8px rgba(232,80,10,.25)
-        }
+        .bp2:active { box-shadow: 0 2px 10px rgba(255,107,43,0.3) }
 
         .bo {
-            background: transparent;
+            background: rgba(255,107,43,0.08);
             color: var(--p);
-            border: 1.5px solid var(--p)
+            border: 1.5px solid rgba(255,107,43,0.35)
         }
 
         .brd {
-            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            background: linear-gradient(135deg, #FF4D4D, #DC2626);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(220,38,38,.25)
+            box-shadow: 0 4px 16px rgba(255,77,77,0.35)
         }
 
         .bgn {
-            background: linear-gradient(135deg, #059669, #047857);
+            background: linear-gradient(135deg, #0FD98E, #059669);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(5,150,105,.25)
+            box-shadow: 0 4px 16px rgba(15,217,142,0.35)
         }
 
         .bpu2 {
-            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            background: linear-gradient(135deg, #A78BFA, #7C3AED);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(124,58,237,.25)
+            box-shadow: 0 4px 16px rgba(167,139,250,0.35)
         }
 
         .bbl {
-            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            background: linear-gradient(135deg, #4D9FFF, #2563EB);
             color: #fff;
-            box-shadow: 0 4px 12px rgba(37,99,235,.25)
+            box-shadow: 0 4px 16px rgba(77,159,255,0.35)
         }
 
         .bsm {
@@ -473,29 +468,31 @@
         
         .tbs {
             display: flex;
-            background: #fff;
-            border-radius: 12px;
+            background: var(--s2);
+            border: 1px solid var(--bd);
+            border-radius: 14px;
             padding: 4px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+            margin-bottom: 12px
         }
-        
+
         .tbt {
             flex: 1;
             padding: 9px 4px;
-            border-radius: 8px;
+            border-radius: 10px;
             border: none;
             background: transparent;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--mu);
             cursor: pointer;
-            font-family: inherit
+            font-family: inherit;
+            transition: all .2s
         }
-        
+
         .tbt.on {
-            background: var(--p);
-            color: #fff
+            background: linear-gradient(135deg, #FF6B2B, #E8500A);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(255,107,43,0.35)
         }
         /* CALENDAR */
         
@@ -508,7 +505,7 @@
         
         .cdn {
             text-align: center;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--mu);
             padding: 3px 0
@@ -531,29 +528,10 @@
             font-weight: 800
         }
         
-        .cdy.lv {
-            background: #fee2e2;
-            color: var(--rd);
-            font-weight: 800
-        }
-        
-        .cdy.lv.pd {
-            background: #fef3c7;
-            color: #92400e;
-            font-weight: 800
-        }
-        
-        .cdy.pnd {
-            background: #dbeafe;
-            color: #1e40af;
-            font-weight: 800
-        }
-        
-        .cdy.ex {
-            background: #d1fae5;
-            color: #065f46;
-            font-weight: 800
-        }
+        .cdy.lv  { background: rgba(255,77,77,0.2);   color: #FF7070; font-weight: 800 }
+        .cdy.lv.pd { background: rgba(255,179,71,0.2); color: #FFB347; font-weight: 800 }
+        .cdy.pnd { background: rgba(77,159,255,0.2);  color: #4D9FFF; font-weight: 800 }
+        .cdy.ex  { background: rgba(15,217,142,0.2);  color: #0FD98E; font-weight: 800 }
         
         .cdy:not(.emp):hover {
             background: var(--pl)
@@ -568,11 +546,11 @@
         }
         
         .stc {
-            background: #fff;
-            border-radius: 12px;
+            background: var(--s2);
+            border: 1px solid var(--bd);
+            border-radius: 14px;
             padding: 14px 8px;
-            text-align: center;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+            text-align: center
         }
         
         .stv {
@@ -581,7 +559,7 @@
         }
         
         .stl2 {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--mu);
             margin-top: 2px
         }
@@ -651,12 +629,14 @@
         }
         
         .mnv button {
-            background: #fff;
+            background: var(--s2);
             border: 1.5px solid var(--bd);
             border-radius: 10px;
             padding: 8px 16px;
             font-size: 15px;
-            cursor: pointer
+            cursor: pointer;
+            color: var(--t);
+            font-family: inherit
         }
         
         .mlb {
@@ -711,11 +691,11 @@
         }
         
         .ilb {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--mu);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .5px
+            letter-spacing: .4px
         }
         
         .ivl {
@@ -730,7 +710,7 @@
             bottom: calc(var(--bh)+12px);
             left: 50%;
             transform: translateX(-50%);
-            background: #1a1a2e;
+            background: rgba(255,107,43,0.95);
             color: #fff;
             padding: 10px 20px;
             border-radius: 20px;
@@ -768,7 +748,8 @@
         }
 
         .sht {
-            background: #fff;
+            background: var(--s1);
+            border-top: 1px solid rgba(255,255,255,0.1);
             width: 100%;
             border-radius: 28px 28px 0 0;
             padding: 8px 20px 36px;
@@ -783,11 +764,11 @@
         }
 
         .hdl {
-            width: 40px;
+            width: 44px;
             height: 4px;
-            background: #E0E0E5;
+            background: rgba(255,255,255,0.15);
             border-radius: 2px;
-            margin: 8px auto 20px
+            margin: 10px auto 20px
         }
         /* EMPTY */
         
@@ -824,8 +805,8 @@
         /* PAID BANNER */
         
         .pdb {
-            background: #d1fae5;
-            border: 1.5px solid #a7f3d0;
+            background: rgba(15,217,142,0.12);
+            border: 1.5px solid rgba(15,217,142,0.3);
             border-radius: 12px;
             padding: 12px 16px;
             display: flex;
@@ -833,24 +814,16 @@
             gap: 10px;
             margin-bottom: 12px
         }
-        
-        .pdb .pdi {
-            font-size: 22px
-        }
-        
-        .pdb .pdt {
-            font-size: 13px;
-            font-weight: 700;
-            color: #065f46
-        }
-        /* REQUEST CARDS */
-        
+
+        .pdb .pdi { font-size: 22px }
+        .pdb .pdt { font-size: 13px; font-weight: 700; color: #0FD98E }
+
         .rqc {
-            background: #fff;
+            background: var(--s1);
+            border: 1px solid var(--bd);
             border-radius: 16px;
             padding: 14px;
-            margin-bottom: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, .06)
+            margin-bottom: 10px
         }
         /* LOGIN — PREMIUM */
 
@@ -858,12 +831,12 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background: #F2F3F7
+            background: #0C0C16
         }
 
         .lgn-top {
-            background: linear-gradient(150deg, #E8500A 0%, #C4400A 60%, #A33509 100%);
-            padding: 56px 32px 48px;
+            background: #0C0C16;
+            padding: 64px 32px 52px;
             text-align: center;
             position: relative;
             overflow: hidden
@@ -872,72 +845,76 @@
         .lgn-top::before {
             content: '';
             position: absolute;
-            top: -40px;
-            right: -40px;
-            width: 180px;
-            height: 180px;
-            background: rgba(255,255,255,0.07);
-            border-radius: 50%
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(255,107,43,0.18) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none
         }
 
         .lgn-top::after {
             content: '';
             position: absolute;
-            bottom: -60px;
-            left: -20px;
-            width: 140px;
-            height: 140px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 50%
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, #0C0C16);
+            pointer-events: none
         }
 
         .lgico {
-            font-size: 56px;
-            margin-bottom: 12px;
+            font-size: 72px;
+            margin-bottom: 16px;
             display: block;
             position: relative;
-            z-index: 1
+            z-index: 1;
+            filter: drop-shadow(0 0 24px rgba(255,107,43,0.5))
         }
 
         .lgtl {
-            font-size: 20px;
+            font-size: 21px;
             font-weight: 900;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             letter-spacing: -.3px;
             position: relative;
-            z-index: 1
+            z-index: 1;
+            text-shadow: 0 0 40px rgba(255,107,43,0.3)
         }
 
         .lgsu {
-            font-size: 14px;
-            color: rgba(255,255,255,.75);
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,.45);
             position: relative;
-            z-index: 1
+            z-index: 1;
+            letter-spacing: .3px
         }
 
         .lgn-body {
-            background: #F2F3F7;
-            border-radius: 28px 28px 0 0;
-            margin-top: -20px;
-            padding: 28px 20px 36px;
+            background: #0C0C16;
+            padding: 20px 20px 36px;
             flex: 1;
             position: relative;
             z-index: 2
         }
 
         .lgn-card {
-            background: #fff;
+            background: var(--s1);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 20px;
             padding: 20px;
             box-shadow: var(--sd);
-            border: 1px solid rgba(0,0,0,0.04);
             margin-bottom: 14px
         }
 
         .lgn-sec-lbl {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 800;
             color: var(--mu);
             text-transform: uppercase;
             letter-spacing: .6px;
@@ -952,62 +929,57 @@
         }
 
         .rbt {
-            border: 2px solid var(--bd);
-            border-radius: 14px;
-            padding: 16px 10px;
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 18px 10px;
             text-align: center;
             cursor: pointer;
-            background: #FAFBFC;
+            background: var(--s2);
             font-family: inherit;
             transition: all .2s
         }
 
         .rbt.on {
             border-color: var(--p);
-            background: var(--pl);
-            box-shadow: 0 0 0 3px rgba(232,80,10,.1)
+            background: rgba(255,107,43,0.12);
+            box-shadow: 0 0 0 3px rgba(255,107,43,0.15), inset 0 0 20px rgba(255,107,43,0.05)
         }
 
-        .rbt .ric {
-            font-size: 28px;
-            margin-bottom: 5px
-        }
+        .rbt .ric { font-size: 30px; margin-bottom: 6px }
 
         .rbt .rnm {
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--mu)
         }
 
-        .rbt.on .rnm {
-            color: var(--p)
-        }
+        .rbt.on .rnm { color: var(--p) }
 
         .pin-wrap {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin: 14px 0
+            margin: 16px 0
         }
 
         .pin-dot {
             width: 52px;
             height: 58px;
-            border: 2px solid var(--bd);
-            border-radius: 14px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
-            background: #FAFBFC;
+            background: var(--s3);
             transition: all .2s
         }
 
         .pin-dot.fl {
             border-color: var(--p);
-            background: var(--pl);
-            box-shadow: 0 0 0 3px rgba(232,80,10,.1)
+            background: rgba(255,107,43,0.15);
+            box-shadow: 0 0 16px rgba(255,107,43,0.3)
         }
 
         .numpad {
@@ -1020,52 +992,47 @@
         }
 
         .npb {
-            padding: 17px;
-            border-radius: 14px;
-            border: none;
-            background: #fff;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--s2);
             font-size: 22px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--t);
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             font-family: inherit;
-            transition: transform .1s, background .1s
+            transition: transform .1s, background .15s
         }
 
         .npb:active {
-            background: var(--pl);
-            transform: scale(.94)
+            background: rgba(255,107,43,0.2);
+            transform: scale(.92);
+            border-color: rgba(255,107,43,0.4)
         }
 
         .npb.emp {
             background: transparent;
-            box-shadow: none
-        }
-        
-        .npb.emp {
-            background: transparent;
             box-shadow: none;
+            border-color: transparent;
             cursor: default
         }
-        
+
         .usel {
             width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--bd);
+            padding: 13px 14px;
+            border: 1.5px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             font-size: 15px;
             color: var(--t);
-            background: #fff;
+            background: var(--s3);
             outline: none;
             margin-bottom: 12px;
             font-family: inherit;
             -webkit-appearance: none
         }
-        
-        .usel:focus {
-            border-color: var(--p)
-        }
+
+        .usel:focus { border-color: var(--p) }
         
         .pin-lbl {
             font-size: 14px;
@@ -1085,20 +1052,31 @@
         /* STAFF HOME */
         
         .shm {
-            background: linear-gradient(135deg, var(--p), #c23d00);
-            border-radius: 20px;
-            padding: 20px;
+            background: linear-gradient(135deg, #FF6B2B 0%, #C4400A 60%, #8B2E00 100%);
+            border-radius: 24px;
+            padding: 22px;
             margin-bottom: 16px;
-            color: #fff
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(255,107,43,0.3), 0 2px 8px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden
         }
-        /* ADMIN HOME */
-        
+        .shm::before {
+            content: '';
+            position: absolute;
+            top: -30px; right: -30px;
+            width: 160px; height: 160px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%
+        }
+
         .ahm {
-            background: linear-gradient(135deg, #7c3aed, #5b21b6);
-            border-radius: 20px;
-            padding: 20px;
+            background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 60%, #4C1D95 100%);
+            border-radius: 24px;
+            padding: 22px;
             margin-bottom: 16px;
-            color: #fff
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(124,58,237,0.3)
         }
         /* SECTION TITLE with line */
         
@@ -1134,16 +1112,16 @@
             gap: 8px;
             box-shadow: 0 4px 16px rgba(232,80,10,.3)
         }
-        .cl-cat-card { background:#fff; border-radius:16px; margin-bottom:12px; overflow:hidden; box-shadow: var(--sd) }
+        .cl-cat-card { background:var(--s1); border:1px solid var(--bd); border-radius:16px; margin-bottom:12px; overflow:hidden; box-shadow: var(--sd) }
         .cl-cat-hd { padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--bd) }
         .cl-cat-title { font-size:15px; font-weight:800 }
-        .cl-freq { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.5px }
+        .cl-freq { display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:.3px }
         .cl-freq-daily { background:#FEF3C7; color:#D97706 }
         .cl-freq-weekly { background:#DBEAFE; color:#2563EB }
         .cl-freq-monthly { background:#F3E8FF; color:#7C3AED }
         .cl-item { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--bd) }
         .cl-item:last-child { border-bottom:none }
-        .cl-chk { width:28px; height:28px; border-radius:8px; border:2px solid var(--bd); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; flex-shrink:0; background:#fff }
+        .cl-chk { width:28px; height:28px; border-radius:8px; border:2px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; flex-shrink:0; background:var(--s3) }
         .cl-chk.done { background:var(--gn); border-color:var(--gn); color:#fff; font-size:16px }
         .cl-item-info { flex:1; min-width:0 }
         .cl-item-title { font-size:14px; font-weight:600; transition:all .15s }
@@ -1166,19 +1144,33 @@
         .ord-name { flex:1; font-size:14px; font-weight:600 }
         .ord-unit { font-size:12px; color:var(--mu) }
         .ord-qty { display:flex; align-items:center; gap:6px }
-        .ord-qty-btn { width:28px; height:28px; border-radius:8px; border:1.5px solid var(--bd); background:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--p) }
-        .ord-qty-inp { width:40px; text-align:center; border:1.5px solid var(--bd); border-radius:8px; padding:4px 2px; font-size:14px; font-weight:700 }
-        .ord-cat-hd { font-size:11px; font-weight:800; color:var(--mu); text-transform:uppercase; letter-spacing:.7px; padding:16px 0 6px; border-bottom:2px solid var(--bd); margin-bottom:4px }
-        .ord-send-bar { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:#fff; border-top:1px solid var(--bd); padding:12px 16px 20px; z-index:200 }
+        .ord-qty-btn { width:28px; height:28px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.12); background:var(--s3); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--p) }
+        .ord-qty-inp { width:40px; text-align:center; border:1.5px solid rgba(255,255,255,0.12); border-radius:8px; padding:4px 2px; font-size:14px; font-weight:700; background:var(--s3); color:var(--t); font-family:inherit }
+        .ord-cat-hd { font-size:12px; font-weight:800; color:var(--mu); text-transform:uppercase; letter-spacing:.5px; padding:16px 0 6px; border-bottom:1px solid var(--bd); margin-bottom:4px }
+        .ord-send-bar { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:rgba(13,13,22,0.95); backdrop-filter:blur(20px); border-top:1px solid rgba(255,255,255,0.08); padding:12px 16px 20px; z-index:200 }
         .ord-pub-btn { margin:10px 16px 0; background:linear-gradient(135deg,#059669,#047857); color:#fff; border:none; border-radius:14px; padding:14px 20px; font-size:15px; font-weight:700; width:calc(100% - 32px); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(5,150,105,.25) }
+        /* NOTIFICATION BANNERS */
+        .ntf-banner { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; margin-bottom:10px; cursor:pointer }
+        .ntf-banner.orange { background:rgba(255,107,43,0.1); border-left:4px solid var(--p) }
+        .ntf-banner.green  { background:rgba(15,217,142,0.1); border-left:4px solid var(--gn) }
+        .ntf-banner.blue   { background:rgba(77,159,255,0.1); border-left:4px solid var(--bl) }
+        .ntf-banner.yellow { background:rgba(255,179,71,0.1); border-left:4px solid var(--yw) }
+        .ntf-banner .ntf-icon { font-size:22px; flex-shrink:0 }
+        .ntf-banner .ntf-body { flex:1; min-width:0 }
+        .ntf-banner .ntf-title { font-size:13px; font-weight:700; color:var(--t) }
+        .ntf-banner .ntf-sub { font-size:12px; color:var(--mu); margin-top:1px }
+        .ntf-banner .ntf-action { font-size:18px; color:var(--mu); flex-shrink:0 }
+        .ntf-section { padding:0 16px; margin-bottom:4px }
+        .wa-share-btn { background:#25D366; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; margin-top:10px; width:100%; justify-content:center }
     </style>
 </head>
 
 <body>
     <!-- Firebase loading overlay -->
-    <div id="fbLoad" style="position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
-        <div style="width:48px;height:48px;border:4px solid #E8500A;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div>
-        <div style="font-size:14px;color:#6b7280" id="fbLoadMsg">Connecting to database…</div>
+    <div id="fbLoad" style="position:fixed;inset:0;background:#0C0C16;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+        <div style="font-size:56px;filter:drop-shadow(0 0 20px rgba(255,107,43,0.6))">🍽️</div>
+        <div style="width:44px;height:44px;border:3px solid rgba(255,107,43,0.2);border-top-color:#FF6B2B;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <div style="font-size:13px;color:#7070A0;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;letter-spacing:.3px" id="fbLoadMsg">Connecting to database…</div>
     </div>
     <style>
         @keyframes spin {
@@ -1264,6 +1256,7 @@
     <div class="scr" id="sList">
         <div class="hdr">
             <div class="htl">🍽️ Staff Manager</div><button class="hbt" onclick="showStaffForm(null)">+ Add</button></div>
+        <div id="adminBanners" style="padding:8px 16px 0"></div>
         <div class="srb"><span>🔍</span><input type="text" placeholder="Search staff..." id="srch" oninput="renderList()"></div>
         <div id="listCont"></div>
     </div>
@@ -1546,7 +1539,10 @@
             <button class="tbt" id="clTabW" onclick="setClTab('weekly')">Weekly</button>
             <button class="tbt" id="clTabM" onclick="setClTab('monthly')">Monthly</button>
         </div>
-        <div id="clCont" style="padding:12px 16px 100px"></div>
+        <div id="clCont" style="padding:12px 16px 20px"></div>
+        <div style="padding:0 16px 100px">
+            <button class="wa-share-btn" onclick="shareChecklistWhatsApp()">📲 Share Pending Tasks via WhatsApp</button>
+        </div>
     </div>
 
     <!-- ═══ DAILY ORDER SCREEN (public, no login needed) ═══ -->
@@ -2503,6 +2499,7 @@ function doResetPin(){
 // ── STAFF LIST ────────────────────────────────
 async function renderList(){
   updateBadge();
+  renderAdminBanners();
   const staff=gStaff();
   const q=(document.getElementById('srch')?.value||'').toLowerCase();
   const filtered=staff.filter(s=>s.name.toLowerCase().includes(q));
@@ -2853,11 +2850,11 @@ function renderAdminChallengesList(){
   const el=document.getElementById('adminChallengesList'); if(!el)return;
   const all=gChallenges().sort((a,b)=>b.createdAt>a.createdAt?1:-1);
   if(!all.length){el.innerHTML=`<div style="color:var(--mu);font-size:13px;margin-bottom:8px">No challenges yet</div>`;return;}
-  el.innerHTML=all.slice(0,5).map(c=>`<div class="lit"><div>
+  el.innerHTML=all.slice(0,5).map(c=>`<div class="lit"><div style="flex:1">
     <div style="font-weight:700;font-size:14px">${c.status==='ended'?'[Ended] ':''}${c.title}</div>
     <div style="font-size:12px;color:var(--mu)">Target ⭐${c.targetPts} · Prize ₹${c.prize} · ${c.deadline}</div>
-  </div><div style="display:flex;gap:4px">
-    ${c.status==='active'?`<button class="btn bo bxs" onclick="showChallengeModal('${c.id}')">✏️</button><button class="btn brd bxs" onclick="endChallenge('${c.id}')">End</button>`:''}
+  </div><div style="display:flex;gap:4px;flex-shrink:0">
+    ${c.status==='active'?`<button class="btn bo bxs" onclick="shareChallengeWhatsApp('${c.id}')" title="Share on WhatsApp">📲</button><button class="btn bo bxs" onclick="showChallengeModal('${c.id}')">✏️</button><button class="btn brd bxs" onclick="endChallenge('${c.id}')">End</button>`:''}
   </div></div>`).join('');
 }
 function showCrownWinnerModal(){
@@ -2975,7 +2972,7 @@ async function renderStHome(){
         </div>
       </div>
     </div>
-    ${pendLv+pendAdv+pendPt>0?`<div class="crd" style="border-left:4px solid var(--yw)"><div style="font-weight:700;margin-bottom:4px">⏳ Pending Requests</div><div style="font-size:13px;color:var(--mu)">${[pendLv?pendLv+' leave':'',pendAdv?pendAdv+' advance':'',pendPt?pendPt+' points':''].filter(Boolean).join(' · ')}</div></div>`:''}
+    ${buildStaffBanners(id,pendLv,pendAdv,pendPt)}
     <div class="crd">
       <div style="font-weight:700;margin-bottom:12px">Quick Actions</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -3738,6 +3735,200 @@ function delClItem(id) {
   sClDone(gClDone().filter(d => d.itemId !== id));
   toast('Task deleted');
   renderAdminChecklist();
+}
+
+// ── WHATSAPP REMINDERS ────────────────────────
+function shareChecklistWhatsApp() {
+  const cats = gClCats();
+  const items = gClItems();
+  const staff = gStaff();
+  const now = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  let pendingLines = [];
+  cats.forEach(cat => {
+    const catItems = items.filter(i => i.catId === cat.id);
+    const pending = catItems.filter(i => !isClItemDone(i.id, cat.freq));
+    if (pending.length) {
+      pendingLines.push(`\n*${cat.name}* (${cat.freq})`);
+      pending.forEach(item => {
+        const assignedNames = (item.assignedSids||[]).map(sid => staff.find(s=>s.id===sid)?.name||'').filter(Boolean).join(', ');
+        pendingLines.push(`  🔴 ${item.title}${assignedNames ? ' — ' + assignedNames : ''}`);
+      });
+    }
+  });
+
+  if (!pendingLines.length) {
+    toast('🎉 All tasks are completed!');
+    return;
+  }
+
+  let msg = `📋 *CRACK'D CAFE — Checklist Reminder*\n📅 ${dateStr}\n`;
+  msg += pendingLines.join('\n');
+  msg += `\n\n⚠️ _Please complete the above pending tasks!_`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function shareChallengeWhatsApp(id) {
+  const c = gChallenges().find(x => x.id === id);
+  if (!c) return;
+  const board = getMonthLeaderboard(nowMon().y, nowMon().m);
+  const daysLeft = Math.max(0, Math.ceil((new Date(c.deadline) - new Date()) / 86400000));
+  const medals = ['🥇','🥈','🥉'];
+  const topBoard = board.slice(0,5).map((b,i) => `${medals[i]||'  '} ${b.name} — ⭐ ${b.monthPts} pts`).join('\n');
+
+  let msg = `🎯 *CRACK'D CAFE — Challenge Alert!*\n\n`;
+  msg += `*${c.title}*\n`;
+  if (c.description) msg += `${c.description}\n`;
+  msg += `\n🏆 Prize: ₹${c.prize}\n`;
+  msg += `🎯 Target: ⭐ ${c.targetPts} points\n`;
+  msg += `⏰ Deadline: ${c.deadline} (${daysLeft} day${daysLeft!==1?'s':''} left!)\n`;
+  if (topBoard) msg += `\n*Current Leaderboard:*\n${topBoard}\n`;
+  msg += `\n💪 _Give your best! Every point counts!_`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function shareOrderReminderWhatsApp() {
+  const now = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  let msg = `📦 *CRACK'D CAFE — Daily Order Reminder*\n📅 ${dateStr}\n\n`;
+  msg += `⚠️ Please check and submit today's raw material order!\n\n`;
+  msg += `Open the app → 📦 Daily Ordering → Select items → Send via WhatsApp`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ── IN-APP BANNERS ────────────────────────────
+function buildStaffBanners(staffId, pendLv, pendAdv, pendPt) {
+  let html = '<div class="ntf-section">';
+  const banners = [];
+
+  // Pending requests banner
+  if (pendLv + pendAdv + pendPt > 0) {
+    const parts = [pendLv?pendLv+' leave req':'', pendAdv?pendAdv+' advance req':'', pendPt?pendPt+' points req':''].filter(Boolean).join(', ');
+    banners.push(`<div class="ntf-banner yellow" onclick="navSt('salary')">
+      <div class="ntf-icon">⏳</div>
+      <div class="ntf-body"><div class="ntf-title">Pending Requests</div><div class="ntf-sub">${parts} — waiting for approval</div></div>
+      <div class="ntf-action">›</div>
+    </div>`);
+  }
+
+  // Pending checklist tasks for this staff
+  const myItems = gClItems().filter(i => (i.assignedSids||[]).includes(staffId));
+  const pendingCl = myItems.filter(i => {
+    const cat = gClCats().find(c => c.id === i.catId);
+    return cat && !isClItemDone(i.id, cat.freq);
+  });
+  if (pendingCl.length > 0) {
+    banners.push(`<div class="ntf-banner orange" onclick="showChecklist('staff')">
+      <div class="ntf-icon">📋</div>
+      <div class="ntf-body"><div class="ntf-title">${pendingCl.length} Task${pendingCl.length>1?'s':''} Pending</div><div class="ntf-sub">You have checklist items to complete today</div></div>
+      <div class="ntf-action">›</div>
+    </div>`);
+  }
+
+  // Active challenges
+  const challenges = getActiveChallenges();
+  challenges.forEach(c => {
+    const daysLeft = Math.max(0, Math.ceil((new Date(c.deadline) - new Date()) / 86400000));
+    const myPts = getPtBal(staffId);
+    const ptsNeeded = Math.max(0, c.targetPts - myPts);
+    if (daysLeft <= 5) {
+      banners.push(`<div class="ntf-banner blue">
+        <div class="ntf-icon">🎯</div>
+        <div class="ntf-body"><div class="ntf-title">${c.title} — ${daysLeft}d left!</div><div class="ntf-sub">${ptsNeeded > 0 ? `Need ${ptsNeeded} more pts to win ₹${c.prize}` : `🎉 You qualify for ₹${c.prize} prize!`}</div></div>
+        <div class="ntf-action">›</div>
+      </div>`);
+    }
+  });
+
+  // Daily order reminder if morning
+  if (new Date().getHours() < 13 && gRawMats().length > 0) {
+    banners.push(`<div class="ntf-banner green" onclick="showOrder('staff')">
+      <div class="ntf-icon">📦</div>
+      <div class="ntf-body"><div class="ntf-title">Daily Order</div><div class="ntf-sub">Tap to check & submit today's raw material order</div></div>
+      <div class="ntf-action">›</div>
+    </div>`);
+  }
+
+  if (!banners.length) return '';
+  html += banners.join('') + '</div>';
+  return html;
+}
+
+function renderAdminBanners() {
+  const cont = document.getElementById('adminBanners');
+  if (!cont) return;
+  const banners = [];
+
+  // Pending requests
+  const pendTotal = gLvReqs().filter(r=>r.status==='pending').length +
+                    gAdvReqs().filter(r=>r.status==='pending').length +
+                    gPtReqs().filter(r=>r.status==='pending').length;
+  if (pendTotal > 0) {
+    banners.push(`<div class="ntf-banner yellow" onclick="navTo('reqs')" style="cursor:pointer">
+      <div class="ntf-icon">🔔</div>
+      <div class="ntf-body"><div class="ntf-title">${pendTotal} Pending Request${pendTotal>1?'s':''}</div><div class="ntf-sub">Staff are waiting for approval</div></div>
+      <div class="ntf-action">›</div>
+    </div>`);
+  }
+
+  // Checklist summary
+  const cats = gClCats().filter(c => c.freq === 'daily');
+  const items = gClItems();
+  const totalDailyItems = items.filter(i => cats.some(c => c.id === i.catId)).length;
+  if (totalDailyItems > 0) {
+    const doneDailyItems = items.filter(i => {
+      const cat = cats.find(c => c.id === i.catId);
+      return cat && isClItemDone(i.id, 'daily');
+    }).length;
+    const pendDailyItems = totalDailyItems - doneDailyItems;
+    if (pendDailyItems > 0) {
+      banners.push(`<div class="ntf-banner orange" onclick="showChecklist('admin')" style="cursor:pointer">
+        <div class="ntf-icon">📋</div>
+        <div class="ntf-body"><div class="ntf-title">${pendDailyItems} Checklist Task${pendDailyItems>1?'s':''} Pending</div><div class="ntf-sub">${doneDailyItems}/${totalDailyItems} daily tasks completed</div></div>
+        <div class="ntf-action">›</div>
+      </div>`);
+    }
+  }
+
+  // Challenges ending soon
+  const challenges = getActiveChallenges();
+  const endingSoon = challenges.filter(c => {
+    const d = Math.ceil((new Date(c.deadline) - new Date()) / 86400000);
+    return d >= 0 && d <= 3;
+  });
+  endingSoon.forEach(c => {
+    const daysLeft = Math.max(0, Math.ceil((new Date(c.deadline) - new Date()) / 86400000));
+    banners.push(`<div class="ntf-banner blue" style="cursor:pointer">
+      <div class="ntf-icon">🎯</div>
+      <div class="ntf-body">
+        <div class="ntf-title">Challenge ends in ${daysLeft}d: ${c.title}</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn bo bxs" style="font-size:12px" onclick="event.stopPropagation();shareChallengeWhatsApp('${c.id}')">📲 Remind Staff</button>
+        </div>
+      </div>
+    </div>`);
+  });
+
+  // Morning order reminder
+  if (new Date().getHours() < 13 && gRawMats().length > 0) {
+    banners.push(`<div class="ntf-banner green" style="cursor:pointer">
+      <div class="ntf-icon">📦</div>
+      <div class="ntf-body">
+        <div class="ntf-title">Daily Order Reminder</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn bo bxs" style="font-size:12px" onclick="event.stopPropagation();showOrder('admin')">Open Order</button>
+          <button class="btn bo bxs" style="font-size:12px;background:#25D366;color:#fff;border-color:#25D366" onclick="event.stopPropagation();shareOrderReminderWhatsApp()">📲 Remind</button>
+        </div>
+      </div>
+    </div>`);
+  }
+
+  cont.innerHTML = banners.join('');
 }
 
 // ── INIT ──────────────────────────────────────
